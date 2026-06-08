@@ -211,26 +211,67 @@ public struct DashboardView: View {
                                         .font(.headline)
                                         .foregroundColor(.white)
                                     
-                                    Chart {
-                                        ForEach(portfolios) { portfolio in
-                                            let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
-                                            SectorMark(
-                                                angle: .value("Value", val),
-                                                innerRadius: .ratio(0.65),
-                                                angularInset: 2.0
-                                            )
-                                            .foregroundStyle(Color(hex: portfolio.hexColor))
-                                            .annotation(position: .overlay) {
-                                                if val / grandTotal > 0.15 {
-                                                    Text(portfolio.name)
-                                                        .font(.caption2)
-                                                        .fontWeight(.bold)
-                                                        .foregroundColor(.white)
+                                    HStack(spacing: 24) {
+                                        Chart {
+                                            ForEach(portfolios) { portfolio in
+                                                let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
+                                                SectorMark(
+                                                    angle: .value("Value", val),
+                                                    innerRadius: .ratio(0.75),
+                                                    angularInset: 1.5
+                                                )
+                                                .foregroundStyle(Color(hex: portfolio.hexColor))
+                                            }
+                                        }
+                                        .frame(width: 120, height: 120)
+                                        .chartBackground { chartProxy in
+                                            GeometryReader { geometry in
+                                                if let plotFrame = chartProxy.plotFrame {
+                                                    let frame = geometry[plotFrame]
+                                                    VStack(spacing: 1) {
+                                                        Text("Total")
+                                                            .font(.system(size: 9, weight: .bold))
+                                                            .foregroundColor(.gray)
+                                                            .textCase(.uppercase)
+                                                        
+                                                        Text(formatCurrency(grandTotal, code: "USD"))
+                                                            .font(.system(size: 11, weight: .black, design: .rounded))
+                                                            .foregroundColor(.white)
+                                                            .minimumScaleFactor(0.65)
+                                                            .lineLimit(1)
+                                                    }
+                                                    .frame(width: frame.width * 0.75, height: frame.height * 0.75)
+                                                    .position(x: frame.midX, y: frame.midY)
                                                 }
                                             }
                                         }
+                                        
+                                        VStack(alignment: .leading, spacing: 10) {
+                                            ForEach(portfolios) { portfolio in
+                                                let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
+                                                let percentage = grandTotal > 0 ? (val / grandTotal) * 100.0 : 0.0
+                                                
+                                                HStack(spacing: 8) {
+                                                    Circle()
+                                                        .fill(Color(hex: portfolio.hexColor))
+                                                        .frame(width: 8, height: 8)
+                                                        .shadow(color: Color(hex: portfolio.hexColor).opacity(0.5), radius: 2, x: 0, y: 0)
+                                                    
+                                                    VStack(alignment: .leading, spacing: 1) {
+                                                        Text(portfolio.name)
+                                                            .font(.system(size: 13, weight: .bold))
+                                                            .foregroundColor(.white)
+                                                            .lineLimit(1)
+                                                        
+                                                        Text(String(format: "%.1f%% • %@", percentage, formatCurrency(val, code: "USD")))
+                                                            .font(.system(size: 11, weight: .semibold))
+                                                            .foregroundColor(.gray)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                     }
-                                    .frame(height: 180)
                                 }
                             }
                             .padding(.horizontal)
