@@ -33,6 +33,7 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: App/Widget
+      - path: App/Views/Color+Hex.swift
     dependencies:
       - target: StockTrackerCore
     settings:

@@ -145,7 +145,7 @@ struct PortfolioWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PortfolioProvider()) { entry in
             PortfolioWidgetEntryView(entry: entry)
-                .containerBackground(.fill.ternary, for: .widget)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Portfolio Tracker")
         .description("Track your total investments at a glance.")

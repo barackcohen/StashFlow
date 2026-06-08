@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		023DA6002ADDA22E25934945 /* RefreshIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799D7A876A4FC7BC2EBDC101 /* RefreshIntent.swift */; };
+		046C98B8A45F43ACB877254E /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5AC5EF6628EB0D91C77A8D /* Color+Hex.swift */; };
 		2121328E203A06D8F3940F4D /* StockTrackerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */; };
 		27EA955DEABBB44DDB304832 /* StockTrackerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		35CEFEEB9E9D62AD7F79DE63 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB43A81C5765F857A9E08A5 /* DashboardView.swift */; };
@@ -127,7 +128,8 @@
 				E1F113296989200E366EFC1D /* GlassmorphicCard.swift */,
 				79718E0B9B02528700135A8A /* PortfolioDetailView.swift */,
 			);
-			path = Views;
+			name = Views;
+			path = App/Views;
 			sourceTree = "<group>";
 		};
 		3EFE665AFC5ECA970DF817EB /* StockTrackerCore */ = {
@@ -167,6 +169,7 @@
 			children = (
 				CA33CC7ABF854D56BD84A613 /* App */,
 				3EFE665AFC5ECA970DF817EB /* StockTrackerCore */,
+				326517D2BBAC330447278143 /* Views */,
 				5232472EC432A7CEDD4974CE /* Widget */,
 				0D839B587FBCD980E4062FA6 /* Products */,
 			);
@@ -314,6 +317,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				046C98B8A45F43ACB877254E /* Color+Hex.swift in Sources */,
 				5EF6A9944008B67889DF04C3 /* PortfolioWidget.swift in Sources */,
 				023DA6002ADDA22E25934945 /* RefreshIntent.swift in Sources */,
 			);
