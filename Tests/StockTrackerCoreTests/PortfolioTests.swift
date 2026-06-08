@@ -27,7 +27,7 @@ final class PortfolioTests: XCTestCase {
         let portfolio = Portfolio(name: "Growth")
         context.insert(portfolio)
         
-        let position = Position(ticker: "AAPL", shares: 15.5)
+        let position = Position(ticker: "AAPL", shares: 15)
         context.insert(position)
         
         portfolio.positions.append(position)
@@ -35,7 +35,7 @@ final class PortfolioTests: XCTestCase {
         
         XCTAssertEqual(portfolio.positions.count, 1)
         XCTAssertEqual(portfolio.positions.first?.ticker, "AAPL")
-        XCTAssertEqual(portfolio.positions.first?.shares, 15.5)
+        XCTAssertEqual(portfolio.positions.first?.shares, 15)
         XCTAssertEqual(position.portfolio?.name, "Growth")
     }
     
@@ -44,8 +44,8 @@ final class PortfolioTests: XCTestCase {
         let portfolio = Portfolio(name: "Tech")
         context.insert(portfolio)
         
-        let aapl = Position(ticker: "AAPL", shares: 10.0)
-        let tsla = Position(ticker: "TSLA", shares: 5.0)
+        let aapl = Position(ticker: "AAPL", shares: 10)
+        let tsla = Position(ticker: "TSLA", shares: 5)
         
         portfolio.positions.append(aapl)
         portfolio.positions.append(tsla)
@@ -65,8 +65,8 @@ final class PortfolioTests: XCTestCase {
         let portfolio = Portfolio(name: "Performance Test")
         context.insert(portfolio)
         
-        let aapl = Position(ticker: "AAPL", shares: 10.0) // Price 150, change 2% -> Value 1500
-        let tsla = Position(ticker: "TSLA", shares: 5.0)  // Price 200, change -1% -> Value 1000
+        let aapl = Position(ticker: "AAPL", shares: 10) // Price 150, change 2% -> Value 1500
+        let tsla = Position(ticker: "TSLA", shares: 5)  // Price 200, change -1% -> Value 1000
         
         portfolio.positions.append(aapl)
         portfolio.positions.append(tsla)

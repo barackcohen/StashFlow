@@ -215,10 +215,10 @@ public struct PortfolioDetailView: View {
         return formatCurrency(value, code: "USD")
     }
     
-    private func formatShares(_ value: Double) -> String {
+    private func formatShares(_ value: Int) -> String {
         let formatter = NumberFormatter()
-        formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 4
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
     
@@ -238,10 +238,9 @@ struct EditPositionSheet: View {
     var onSave: () -> Void
     @Environment(\.dismiss) private var dismiss
     
-    private var parsedShares: Double? {
+    private var parsedShares: Int? {
         let cleanText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: ",", with: ".")
-        return Double(cleanText)
+        return Int(cleanText)
     }
     
     var body: some View {
@@ -256,7 +255,7 @@ struct EditPositionSheet: View {
                             .foregroundColor(.white)
                         
                         TextField("Number of shares", text: $sharesText)
-                            .keyboardType(.decimalPad)
+                            .keyboardType(.numberPad)
                             .padding()
                             .background(Color.white.opacity(0.06))
                             .cornerRadius(12)
@@ -267,7 +266,7 @@ struct EditPositionSheet: View {
                             )
                         
                         if parsedShares == nil && !sharesText.isEmpty {
-                            Text("Please enter a valid number of shares.")
+                            Text("Please enter a valid integer number of shares.")
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }

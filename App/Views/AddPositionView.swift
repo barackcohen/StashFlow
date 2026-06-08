@@ -149,8 +149,8 @@ public struct AddPositionView: View {
                             .foregroundColor(.gray)
                             .textCase(.uppercase)
                         
-                        TextField("e.g. 10 or 2.5", text: $sharesText)
-                            .keyboardType(.decimalPad)
+                        TextField("e.g. 10", text: $sharesText)
+                            .keyboardType(.numberPad)
                             .padding()
                             .background(Color.white.opacity(0.06))
                             .cornerRadius(12)
@@ -235,8 +235,8 @@ public struct AddPositionView: View {
         let cleanTicker = ticker.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanTicker.isEmpty else { return }
         
-        guard let shares = Double(sharesText), shares > 0 else {
-            errorMessage = "Please enter a valid positive number of shares."
+        guard let shares = Int(sharesText), shares > 0 else {
+            errorMessage = "Please enter a valid positive integer number of shares."
             return
         }
         

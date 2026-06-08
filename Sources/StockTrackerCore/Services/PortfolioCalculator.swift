@@ -9,7 +9,7 @@ public final class PortfolioCalculator {
         var total = 0.0
         for position in portfolio.positions {
             let price = prices[position.ticker.uppercased()] ?? 0.0
-            total += position.shares * price
+            total += Double(position.shares) * price
         }
         return total
     }
@@ -29,7 +29,7 @@ public final class PortfolioCalculator {
         var allocations: [String: Double] = [:]
         for position in portfolio.positions {
             let price = prices[position.ticker.uppercased()] ?? 0.0
-            let value = position.shares * price
+            let value = Double(position.shares) * price
             allocations[position.ticker] = (value / totalVal) * 100.0
         }
         return allocations
@@ -39,7 +39,7 @@ public final class PortfolioCalculator {
     public func calculateWeighted24hChange(for portfolio: Portfolio, prices: [String: (price: Double, change24h: Double)]) -> Double {
         let totalVal = portfolio.positions.reduce(0.0) { sum, pos in
             let price = prices[pos.ticker.uppercased()]?.price ?? 0.0
-            return sum + (pos.shares * price)
+            return sum + (Double(pos.shares) * price)
         }
         
         guard totalVal > 0 else { return 0.0 }
@@ -49,7 +49,7 @@ public final class PortfolioCalculator {
             let priceInfo = prices[pos.ticker.uppercased()]
             let price = priceInfo?.price ?? 0.0
             let change = priceInfo?.change24h ?? 0.0
-            let value = pos.shares * price
+            let value = Double(pos.shares) * price
             weightedSum += value * change
         }
         
