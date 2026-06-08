@@ -123,7 +123,7 @@ public struct PortfolioDetailView: View {
                                 Chart {
                                     ForEach(portfolio.positions) { position in
                                         let price = priceMap[position.ticker] ?? 0.0
-                                        let val = position.shares * price
+                                        let val = Double(position.shares) * price
                                         
                                         BarMark(
                                             x: .value("Asset", position.ticker),
@@ -170,7 +170,7 @@ public struct PortfolioDetailView: View {
                                 ForEach(portfolio.positions) { position in
                                     let price = priceMap[position.ticker] ?? 0.0
                                     let change = priceInfoMap[position.ticker]?.change24h ?? 0.0
-                                    let totalVal = position.shares * price
+                                    let totalVal = Double(position.shares) * price
                                     let secondaryVal = totalVal * getExchangeRate()
                                     
                                     PositionRow(
