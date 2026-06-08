@@ -201,7 +201,14 @@ struct PortfolioWidgetEntryView: View {
     // MARK: - Medium Layout
     
     private var mediumLayout: some View {
-        HStack(spacing: 16) {
+        let limit = min(entry.portfolios.count, 4)
+        let itemSpacing: CGFloat = limit > 3 ? 4 : (limit > 2 ? 6 : 10)
+        let nameFontSize: CGFloat = limit > 3 ? 11 : (limit > 2 ? 12 : 13)
+        let valueFontSize: CGFloat = limit > 3 ? 9 : (limit > 2 ? 10 : 11)
+        let dotSize: CGFloat = limit > 3 ? 6 : 8
+        let indentSize: CGFloat = dotSize + 6
+
+        return HStack(spacing: 16) {
             // Left Column (Total Balance summary)
             VStack(alignment: .leading, spacing: 6) {
                 Text("Total Balance")
@@ -278,31 +285,41 @@ struct PortfolioWidgetEntryView: View {
                         .frame(maxHeight: .infinity)
                 } else {
                     Spacer()
-                    VStack(spacing: 10) {
-                        ForEach(entry.portfolios.prefix(3)) { item in
-                            HStack(spacing: 8) {
-                                Circle()
-                                    .fill(Color(hex: item.hexColor))
-                                    .frame(width: 8, height: 8)
-                                    .shadow(color: Color(hex: item.hexColor).opacity(0.7), radius: 3, x: 0, y: 0)
-                                
-                                Text(item.name)
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                
-                                Spacer()
-                                
-                                VStack(alignment: .trailing, spacing: 1) {
-                                    Text(formatCurrency(item.value, code: "USD"))
-                                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                    VStack(spacing: itemSpacing) {
+                        ForEach(entry.portfolios.prefix(limit)) { item in
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(Color(hex: item.hexColor))
+                                        .frame(width: dotSize, height: dotSize)
+                                        .shadow(color: Color(hex: item.hexColor).opacity(0.7), radius: 3, x: 0, y: 0)
+                                    
+                                    Text(item.name)
+                                        .font(.system(size: nameFontSize, weight: .bold))
                                         .foregroundColor(.white)
+                                        .lineLimit(1)
+                                }
+                                
+                                HStack(spacing: 4) {
+                                    Spacer()
+                                        .frame(width: indentSize)
+                                    
+                                    Text(formatCurrency(item.value, code: "USD"))
+                                        .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                    
+                                    Text("•")
+                                        .font(.system(size: valueFontSize))
+                                        .foregroundColor(.white.opacity(0.3))
                                     
                                     let secondaryVal = item.value * entry.exchangeRate
                                     Text(formatCurrency(secondaryVal, code: entry.secondaryCurrency))
-                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .font(.system(size: valueFontSize, weight: .semibold, design: .rounded))
                                         .foregroundColor(.white.opacity(0.5))
+                                        .lineLimit(1)
                                 }
+                                .minimumScaleFactor(0.8)
                             }
                         }
                     }
