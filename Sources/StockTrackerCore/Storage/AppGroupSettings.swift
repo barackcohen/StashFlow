@@ -22,7 +22,7 @@ public final class AppGroupSettings: Sendable {
     
     public var username: String {
         get {
-            suite?.string(forKey: "username") ?? "Sarah"
+            suite?.string(forKey: "username") ?? "Your Name"
         }
         set {
             suite?.set(newValue, forKey: "username")
