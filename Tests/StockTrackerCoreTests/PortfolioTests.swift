@@ -27,7 +27,7 @@ final class PortfolioTests: XCTestCase {
         let portfolio = Portfolio(name: "Growth")
         context.insert(portfolio)
         
-        let position = Position(ticker: "AAPL", shares: 15)
+        let position = Position(ticker: "AAPL", shares: 15.5)
         context.insert(position)
         
         portfolio.positions.append(position)
@@ -35,7 +35,7 @@ final class PortfolioTests: XCTestCase {
         
         XCTAssertEqual(portfolio.positions.count, 1)
         XCTAssertEqual(portfolio.positions.first?.ticker, "AAPL")
-        XCTAssertEqual(portfolio.positions.first?.shares, 15)
+        XCTAssertEqual(portfolio.positions.first?.shares, 15.5)
         XCTAssertEqual(position.portfolio?.name, "Growth")
     }
     

@@ -16,6 +16,8 @@ public struct DashboardView: View {
     @State private var username = AppGroupSettings.shared.username
     @State private var isEditingName = false
     @State private var tempName = ""
+    @State private var portfolioToRename: Portfolio? = nil
+    @State private var renameText = ""
     
     private let calculator = PortfolioCalculator()
     private let priceService = StockPriceService()
@@ -318,6 +320,20 @@ public struct DashboardView: View {
                                             )
                                         }
                                         .buttonStyle(PlainButtonStyle())
+                                        .contextMenu {
+                                            Button {
+                                                renameText = portfolio.name
+                                                portfolioToRename = portfolio
+                                            } label: {
+                                                Label("Rename Portfolio", systemImage: "pencil")
+                                            }
+                                            
+                                            Button(role: .destructive) {
+                                                deletePortfolio(portfolio)
+                                            } label: {
+                                                Label("Delete Portfolio", systemImage: "trash")
+                                            }
+                                        }
                                     }
                                 }
                                 .padding(.horizontal)
@@ -330,6 +346,25 @@ public struct DashboardView: View {
             .sheet(isPresented: $showingAddPortfolio) {
                 AddPortfolioSheet(isPresented: $showingAddPortfolio, name: $newPortfolioName, color: $newPortfolioColor) {
                     savePortfolio()
+                }
+            }
+            .alert("Rename Portfolio", isPresented: Binding(
+                get: { portfolioToRename != nil },
+                set: { if !$0 { portfolioToRename = nil } }
+            )) {
+                TextField("Portfolio Name", text: $renameText)
+                Button("Save") {
+                    if let portfolio = portfolioToRename {
+                        let cleanName = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !cleanName.isEmpty {
+                            portfolio.name = cleanName
+                            try? modelContext.save()
+                        }
+                    }
+                    portfolioToRename = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    portfolioToRename = nil
                 }
             }
         }
@@ -387,6 +422,11 @@ public struct DashboardView: View {
         modelContext.insert(newPortfolio)
         try? modelContext.save()
         newPortfolioName = ""
+    }
+    
+    private func deletePortfolio(_ portfolio: Portfolio) {
+        modelContext.delete(portfolio)
+        try? modelContext.save()
     }
 }
 

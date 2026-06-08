@@ -149,8 +149,8 @@ public struct AddPositionView: View {
                             .foregroundColor(.gray)
                             .textCase(.uppercase)
                         
-                        TextField("e.g. 10", text: $sharesText)
-                            .keyboardType(.numberPad)
+                        TextField(isCrypto ? "e.g. 0.5 or 10" : "e.g. 10", text: $sharesText)
+                            .keyboardType(isCrypto ? .decimalPad : .numberPad)
                             .padding()
                             .background(Color.white.opacity(0.06))
                             .cornerRadius(12)
@@ -231,12 +231,25 @@ public struct AddPositionView: View {
         }
     }
     
+    private var isCrypto: Bool {
+        let clean = ticker.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return clean.contains("-USD") || clean.contains("=X")
+    }
+    
     private func validateAndSavePosition() {
         let cleanTicker = ticker.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanTicker.isEmpty else { return }
         
-        guard let shares = Int(sharesText), shares > 0 else {
-            errorMessage = "Please enter a valid positive integer number of shares."
+        let cleanSharesText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ",", with: ".")
+        
+        guard let shares = Double(cleanSharesText), shares > 0 else {
+            errorMessage = isCrypto ? "Please enter a valid positive number of shares." : "Please enter a valid positive integer number of shares."
+            return
+        }
+        
+        if !isCrypto && shares != floor(shares) {
+            errorMessage = "Stocks do not support fractional shares. Please enter an integer."
             return
         }
         

@@ -8,9 +8,14 @@ public struct PortfolioDetailView: View {
     @Bindable var portfolio: Portfolio
     @Query private var cachedPrices: [StockPrice]
     
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var showingAddPosition = false
     @State private var positionToEdit: Position? = nil
     @State private var editSharesText = ""
+    @State private var showingRenameAlert = false
+    @State private var renameText = ""
+    @State private var showingDeleteAlert = false
     
     private let calculator = PortfolioCalculator()
     
@@ -175,7 +180,7 @@ public struct PortfolioDetailView: View {
                                     
                                     PositionRow(
                                         ticker: position.ticker,
-                                        sharesText: "\(formatShares(position.shares)) shares",
+                                        sharesText: "\(formatShares(position.shares, ticker: position.ticker)) shares",
                                         valueUSDText: formatCurrency(totalVal, code: "USD"),
                                         valueSecondaryText: formatCurrency(secondaryVal, code: selectedCurrency),
                                         priceText: formatCurrency(price, code: "USD"),
@@ -201,6 +206,27 @@ public struct PortfolioDetailView: View {
         }
         .navigationTitle(portfolio.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        renameText = portfolio.name
+                        showingRenameAlert = true
+                    } label: {
+                        Label("Rename Portfolio", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        Label("Delete Portfolio", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundColor(Color(hex: portfolio.hexColor))
+                }
+            }
+        }
         .sheet(isPresented: $showingAddPosition) {
             AddPositionView(portfolio: portfolio, isPresented: $showingAddPosition)
         }
@@ -209,16 +235,44 @@ public struct PortfolioDetailView: View {
                 try? modelContext.save()
             }
         }
+        .alert("Rename Portfolio", isPresented: $showingRenameAlert) {
+            TextField("Portfolio Name", text: $renameText)
+            Button("Save") {
+                let clean = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !clean.isEmpty {
+                    portfolio.name = clean
+                    try? modelContext.save()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .alert("Delete Portfolio?", isPresented: $showingDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                modelContext.delete(portfolio)
+                try? modelContext.save()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete '\(portfolio.name)'? This action cannot be undone.")
+        }
     }
     
     private func formatCurrency(_ value: Double) -> String {
         return formatCurrency(value, code: "USD")
     }
     
-    private func formatShares(_ value: Int) -> String {
+    private func formatShares(_ value: Double, ticker: String) -> String {
+        let isCrypto = ticker.uppercased().contains("-USD") || ticker.uppercased().contains("=X")
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
+        if isCrypto {
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 4
+        } else {
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 0
+        }
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
     
@@ -238,9 +292,23 @@ struct EditPositionSheet: View {
     var onSave: () -> Void
     @Environment(\.dismiss) private var dismiss
     
-    private var parsedShares: Int? {
+    private var isCrypto: Bool {
+        position.ticker.uppercased().contains("-USD") || position.ticker.uppercased().contains("=X")
+    }
+    
+    private var parsedShares: Double? {
         let cleanText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return Int(cleanText)
+            .replacingOccurrences(of: ",", with: ".")
+        guard let val = Double(cleanText) else { return nil }
+        
+        if isCrypto {
+            return val
+        } else {
+            if val == floor(val) {
+                return val
+            }
+            return nil
+        }
     }
     
     var body: some View {
@@ -255,7 +323,7 @@ struct EditPositionSheet: View {
                             .foregroundColor(.white)
                         
                         TextField("Number of shares", text: $sharesText)
-                            .keyboardType(.numberPad)
+                            .keyboardType(isCrypto ? .decimalPad : .numberPad)
                             .padding()
                             .background(Color.white.opacity(0.06))
                             .cornerRadius(12)
@@ -266,7 +334,7 @@ struct EditPositionSheet: View {
                             )
                         
                         if parsedShares == nil && !sharesText.isEmpty {
-                            Text("Please enter a valid integer number of shares.")
+                            Text(isCrypto ? "Please enter a valid number of shares." : "Please enter a valid integer number of shares.")
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
