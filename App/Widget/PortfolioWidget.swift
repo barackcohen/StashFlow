@@ -210,12 +210,10 @@ struct PortfolioWidgetEntryView: View {
 
         return HStack(spacing: 16) {
             // Left Column (Total Balance summary)
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("Total Balance")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white.opacity(0.4))
-                
-                Spacer()
                 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(formatCurrency(entry.totalValue, code: "USD"))
@@ -230,8 +228,6 @@ struct PortfolioWidgetEntryView: View {
                         .minimumScaleFactor(0.7)
                 }
                 
-                Spacer()
-                
                 HStack(spacing: 3) {
                     Image(systemName: entry.dayChangePercent >= 0 ? "arrow.up.right" : "arrow.down.left")
                         .font(.system(size: 9, weight: .bold))
@@ -244,7 +240,7 @@ struct PortfolioWidgetEntryView: View {
                 .background((entry.dayChangePercent >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30")).opacity(0.12))
                 .clipShape(Capsule())
                 
-                Spacer()
+                Spacer(minLength: 0)
                 
                 HStack(spacing: 6) {
                     Button(intent: RefreshPricesIntent()) {
@@ -267,13 +263,13 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(width: 120, alignment: .leading)
             
             Divider()
                 .background(Color.white.opacity(0.08))
             
             // Right Column (Top Portfolios)
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("Portfolios")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(.white.opacity(0.4))
@@ -284,7 +280,6 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                         .frame(maxHeight: .infinity)
                 } else {
-                    Spacer()
                     VStack(spacing: itemSpacing) {
                         ForEach(entry.portfolios.prefix(limit)) { item in
                             VStack(alignment: .leading, spacing: 2) {
@@ -308,6 +303,7 @@ struct PortfolioWidgetEntryView: View {
                                         .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
                                     
                                     Text("•")
                                         .font(.system(size: valueFontSize))
@@ -318,17 +314,18 @@ struct PortfolioWidgetEntryView: View {
                                         .font(.system(size: valueFontSize, weight: .semibold, design: .rounded))
                                         .foregroundColor(.white.opacity(0.5))
                                         .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
                                 }
-                                .minimumScaleFactor(0.8)
                             }
                         }
                     }
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
     }
     
     // MARK: - Helpers
