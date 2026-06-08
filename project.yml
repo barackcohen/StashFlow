@@ -1,6 +1,7 @@
 name: StockPortfolios
 options:
   bundleIdPrefix: com.barackcohen
+  createSharedSchemes: true
 targets:
   StockTrackerCore:
     type: framework
@@ -31,6 +32,7 @@ targets:
       MARKETING_VERSION: "1.0.0"
       CURRENT_PROJECT_VERSION: "1"
       CODE_SIGN_ENTITLEMENTS: App/StockPortfolios.entitlements
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   PortfolioWidgetExtension:
     type: app-extension
