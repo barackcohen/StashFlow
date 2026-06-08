@@ -33,6 +33,8 @@ targets:
       CURRENT_PROJECT_VERSION: "1"
       CODE_SIGN_ENTITLEMENTS: App/StockPortfolios.entitlements
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      INFOPLIST_KEY_CFBundleDisplayName: StashFlow
+      INFOPLIST_KEY_CFBundleName: StashFlow
 
   PortfolioWidgetExtension:
     type: app-extension
