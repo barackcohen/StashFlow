@@ -182,41 +182,43 @@ public struct PortfolioDetailView: View {
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 
-                                HStack(spacing: 24) {
-                                    // Left: The donut chart diagram (centered vertically)
-                                    Chart {
-                                        ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
-                                            let color = chartColors[index % chartColors.count]
-                                            SectorMark(
-                                                angle: .value("Value", item.value),
-                                                innerRadius: .ratio(0.7),
-                                                angularInset: 1.5
-                                            )
-                                            .foregroundStyle(color)
+                                GeometryReader { geo in
+                                    ZStack(alignment: .trailing) {
+                                        // Center chart at 40% of the card width
+                                        Chart {
+                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
+                                                let color = chartColors[index % chartColors.count]
+                                                SectorMark(
+                                                    angle: .value("Value", item.value),
+                                                    innerRadius: .ratio(0.7),
+                                                    angularInset: 1.5
+                                                )
+                                                .foregroundStyle(color)
+                                            }
                                         }
-                                    }
-                                    .frame(width: 130, height: 130)
-                                    
-                                    // Right: The legend (single column, vertically centered)
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
-                                            let color = chartColors[index % chartColors.count]
-                                            HStack(spacing: 6) {
-                                                Circle()
-                                                    .fill(color)
-                                                    .frame(width: 6, height: 6)
-                                                    .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
-                                                
-                                                Text(item.ticker)
-                                                    .font(.system(size: 11, weight: .bold))
-                                                    .foregroundColor(.white.opacity(0.9))
-                                                    .lineLimit(1)
+                                        .frame(width: 130, height: 130)
+                                        .position(x: geo.size.width * 0.4, y: geo.size.height / 2)
+                                        
+                                        // Legend on the right edge
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
+                                                let color = chartColors[index % chartColors.count]
+                                                HStack(spacing: 6) {
+                                                    Circle()
+                                                        .fill(color)
+                                                        .frame(width: 6, height: 6)
+                                                        .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
+                                                    
+                                                    Text(item.ticker)
+                                                        .font(.system(size: 11, weight: .bold))
+                                                        .foregroundColor(.white.opacity(0.9))
+                                                        .lineLimit(1)
+                                                }
                                             }
                                         }
                                     }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                .padding(.vertical, 8)
+                                .frame(height: max(CGFloat(chartItems.count * 20 + 20), 130))
                             }
                         }
                         .padding(.horizontal)
