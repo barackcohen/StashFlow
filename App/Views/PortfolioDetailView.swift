@@ -39,6 +39,14 @@ public struct PortfolioDetailView: View {
         calculator.calculateTotal(for: portfolio, prices: priceMap)
     }
     
+    private var sortedPositions: [Position] {
+        portfolio.positions.sorted { p1, p2 in
+            let val1 = Double(p1.shares) * (priceMap[p1.ticker] ?? 0.0)
+            let val2 = Double(p2.shares) * (priceMap[p2.ticker] ?? 0.0)
+            return val1 > val2
+        }
+    }
+    
     private var selectedCurrency: String {
         AppGroupSettings.shared.selectedSecondaryCurrency
     }
@@ -125,20 +133,50 @@ public struct PortfolioDetailView: View {
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 
-                                Chart {
-                                    ForEach(portfolio.positions) { position in
-                                        let price = priceMap[position.ticker] ?? 0.0
-                                        let val = Double(position.shares) * price
-                                        
-                                        BarMark(
-                                            x: .value("Asset", position.ticker),
-                                            y: .value("Value", val)
-                                        )
-                                        .foregroundStyle(Color(hex: portfolio.hexColor).opacity(0.8))
-                                        .cornerRadius(6)
+                                ZStack(alignment: .bottomTrailing) {
+                                    // Center: The donut chart diagram
+                                    HStack {
+                                        Spacer()
+                                        Chart {
+                                            ForEach(Array(sortedPositions.enumerated()), id: \.element.id) { index, position in
+                                                let price = priceMap[position.ticker] ?? 0.0
+                                                let val = Double(position.shares) * price
+                                                let opacity = 1.0 - (Double(index) / Double(max(sortedPositions.count, 1))) * 0.65
+                                                
+                                                SectorMark(
+                                                    angle: .value("Value", val),
+                                                    innerRadius: .ratio(0.7),
+                                                    angularInset: 1.5
+                                                )
+                                                .foregroundStyle(Color(hex: portfolio.hexColor).opacity(opacity))
+                                            }
+                                        }
+                                        .frame(width: 130, height: 130)
+                                        Spacer()
                                     }
+                                    .frame(maxWidth: .infinity)
+                                    
+                                    // Bottom Right: The legend (names only, even smaller text)
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        ForEach(Array(sortedPositions.enumerated()), id: \.element.id) { index, position in
+                                            let opacity = 1.0 - (Double(index) / Double(max(sortedPositions.count, 1))) * 0.65
+                                            HStack(spacing: 6) {
+                                                Circle()
+                                                    .fill(Color(hex: portfolio.hexColor).opacity(opacity))
+                                                    .frame(width: 6, height: 6)
+                                                    .shadow(color: Color(hex: portfolio.hexColor).opacity(opacity * 0.5), radius: 1.5, x: 0, y: 0)
+                                                
+                                                Text(position.ticker)
+                                                    .font(.system(size: 10, weight: .bold))
+                                                    .foregroundColor(.gray)
+                                                    .lineLimit(1)
+                                            }
+                                        }
+                                    }
+                                    .padding(.trailing, 8)
+                                    .padding(.bottom, 4)
                                 }
-                                .frame(height: 150)
+                                .frame(height: 130)
                             }
                         }
                         .padding(.horizontal)
@@ -163,7 +201,7 @@ public struct PortfolioDetailView: View {
                         }
                         .padding(.horizontal)
                         
-                        if portfolio.positions.isEmpty {
+                        if sortedPositions.isEmpty {
                             Text("No positions added yet. Click 'Add Asset' to start tracking.")
                                 .font(.caption)
                                 .foregroundColor(.gray)
@@ -172,7 +210,7 @@ public struct PortfolioDetailView: View {
                                 .padding(.vertical, 40)
                         } else {
                             VStack(spacing: 12) {
-                                ForEach(portfolio.positions) { position in
+                                ForEach(sortedPositions) { position in
                                     let price = priceMap[position.ticker] ?? 0.0
                                     let change = priceInfoMap[position.ticker]?.change24h ?? 0.0
                                     let totalVal = Double(position.shares) * price
