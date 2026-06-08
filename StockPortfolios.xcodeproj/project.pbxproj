@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		023DA6002ADDA22E25934945 /* RefreshIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799D7A876A4FC7BC2EBDC101 /* RefreshIntent.swift */; };
-		046C98B8A45F43ACB877254E /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5AC5EF6628EB0D91C77A8D /* Color+Hex.swift */; };
 		2121328E203A06D8F3940F4D /* StockTrackerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */; };
 		27EA955DEABBB44DDB304832 /* StockTrackerCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		35CEFEEB9E9D62AD7F79DE63 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB43A81C5765F857A9E08A5 /* DashboardView.swift */; };
@@ -147,8 +146,7 @@
 				E1F113296989200E366EFC1D /* GlassmorphicCard.swift */,
 				79718E0B9B02528700135A8A /* PortfolioDetailView.swift */,
 			);
-			name = Views;
-			path = App/Views;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		3EFE665AFC5ECA970DF817EB /* StockTrackerCore */ = {
@@ -188,7 +186,6 @@
 			children = (
 				CA33CC7ABF854D56BD84A613 /* App */,
 				3EFE665AFC5ECA970DF817EB /* StockTrackerCore */,
-				326517D2BBAC330447278143 /* Views */,
 				5232472EC432A7CEDD4974CE /* Widget */,
 				0D839B587FBCD980E4062FA6 /* Products */,
 			);
@@ -338,7 +335,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				046C98B8A45F43ACB877254E /* Color+Hex.swift in Sources */,
 				5EF6A9944008B67889DF04C3 /* PortfolioWidget.swift in Sources */,
 				023DA6002ADDA22E25934945 /* RefreshIntent.swift in Sources */,
 			);
@@ -485,6 +481,7 @@
 		1CFCB9EF54EED87A6DC63011 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -493,6 +490,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.barackcohen.StockPortfolios.Widget;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -502,6 +500,7 @@
 		33D184F1CAB136879E3A51DE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -510,6 +509,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.barackcohen.StockPortfolios.Widget;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -545,6 +545,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -552,6 +553,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.barackcohen.StockPortfolios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -587,6 +589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -594,6 +597,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.barackcohen.StockPortfolios;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
