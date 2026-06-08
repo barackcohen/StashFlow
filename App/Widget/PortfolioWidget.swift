@@ -323,7 +323,8 @@ struct PortfolioWidgetEntryView: View {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencySymbol = AppGroupSettings.shared.getSymbol(for: code)
-        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0.00"
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0"
     }
 }
 
