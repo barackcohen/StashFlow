@@ -16,12 +16,13 @@
 		49EA87442A567992C2E913E3 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A26638E204D25A8BB2C6774 /* Position.swift */; };
 		4A8BDB47935565D96B8A5EFD /* StockTrackerCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */; };
 		5EF6A9944008B67889DF04C3 /* PortfolioWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080935A0CDC6FEE6701B943A /* PortfolioWidget.swift */; };
-		62DE6CD4CA3093D19767E341 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5AC5EF6628EB0D91C77A8D /* Color+Hex.swift */; };
 		6B122EB269405782C8956FB0 /* MockStockPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C046A1AFE4017AE4F1F970 /* MockStockPriceService.swift */; };
 		759452E8646CD610BAA3DF8F /* PortfolioDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79718E0B9B02528700135A8A /* PortfolioDetailView.swift */; };
+		787A02804D3A2E61C4E9AD49 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE3191064CBBD52FE8CA1AD /* Color+Hex.swift */; };
 		910242E2FE77BD5BDDF1EFC8 /* StockPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976437EBF815FAA8C010B2A2 /* StockPrice.swift */; };
 		934DEEBB0D31012193CB37B0 /* PortfolioWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FFD70212CE9CC94486C7D35 /* PortfolioWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		972FFC9811F875E48ADDC0B1 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F571D86F9993718D7D8FB97 /* StorageManager.swift */; };
+		B29AACA3742E2591A2CC44F9 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE3191064CBBD52FE8CA1AD /* Color+Hex.swift */; };
 		C7D39421B56B7D86F5786EC2 /* PortfolioCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1F7D7DE2BE6161F968DFC /* PortfolioCalculator.swift */; };
 		D4B4D14E157847D02241412D /* StockPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BEB965E043F60222B1838D /* StockPriceService.swift */; };
 		DB4D84F86B89FFF150248383 /* StockTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9478A38E9F9A23FDAFD38C /* StockTrackerApp.swift */; };
@@ -93,10 +94,10 @@
 		976437EBF815FAA8C010B2A2 /* StockPrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockPrice.swift; sourceTree = "<group>"; };
 		AA9478A38E9F9A23FDAFD38C /* StockTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockTrackerApp.swift; sourceTree = "<group>"; };
 		CCA24249C868055348AC38E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DEE3191064CBBD52FE8CA1AD /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		E1F113296989200E366EFC1D /* GlassmorphicCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassmorphicCard.swift; sourceTree = "<group>"; };
 		F2BEB965E043F60222B1838D /* StockPriceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockPriceService.swift; sourceTree = "<group>"; };
 		F38B975895D0BABEA0569BF5 /* StockTrackerCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = StockTrackerCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA5AC5EF6628EB0D91C77A8D /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,12 +142,20 @@
 			isa = PBXGroup;
 			children = (
 				858740DC394B6745C8EDCDB6 /* AddPositionView.swift */,
-				FA5AC5EF6628EB0D91C77A8D /* Color+Hex.swift */,
 				2EB43A81C5765F857A9E08A5 /* DashboardView.swift */,
 				E1F113296989200E366EFC1D /* GlassmorphicCard.swift */,
 				79718E0B9B02528700135A8A /* PortfolioDetailView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		3A7B280852FC85E6E981B0B6 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				DEE3191064CBBD52FE8CA1AD /* Color+Hex.swift */,
+			);
+			name = Shared;
+			path = App/Shared;
 			sourceTree = "<group>";
 		};
 		3EFE665AFC5ECA970DF817EB /* StockTrackerCore */ = {
@@ -185,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				CA33CC7ABF854D56BD84A613 /* App */,
+				3A7B280852FC85E6E981B0B6 /* Shared */,
 				3EFE665AFC5ECA970DF817EB /* StockTrackerCore */,
 				5232472EC432A7CEDD4974CE /* Widget */,
 				0D839B587FBCD980E4062FA6 /* Products */,
@@ -195,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				AA9478A38E9F9A23FDAFD38C /* StockTrackerApp.swift */,
+				3A7B280852FC85E6E981B0B6 /* Shared */,
 				326517D2BBAC330447278143 /* Views */,
 			);
 			path = App;
@@ -309,7 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3A0063ED3000D393E1260A22 /* AddPositionView.swift in Sources */,
-				62DE6CD4CA3093D19767E341 /* Color+Hex.swift in Sources */,
+				787A02804D3A2E61C4E9AD49 /* Color+Hex.swift in Sources */,
 				35CEFEEB9E9D62AD7F79DE63 /* DashboardView.swift in Sources */,
 				41475CD89AEE2C621C5603E0 /* GlassmorphicCard.swift in Sources */,
 				759452E8646CD610BAA3DF8F /* PortfolioDetailView.swift in Sources */,
@@ -335,6 +346,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B29AACA3742E2591A2CC44F9 /* Color+Hex.swift in Sources */,
 				5EF6A9944008B67889DF04C3 /* PortfolioWidget.swift in Sources */,
 				023DA6002ADDA22E25934945 /* RefreshIntent.swift in Sources */,
 			);
