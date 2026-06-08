@@ -34,6 +34,35 @@ public struct PortfolioDetailView: View {
         calculator.calculateTotal(for: portfolio, prices: priceMap)
     }
     
+    private var selectedCurrency: String {
+        AppGroupSettings.shared.selectedSecondaryCurrency
+    }
+    
+    private func getExchangeRate() -> Double {
+        let ticker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
+        if let priceObj = cachedPrices.first(where: { $0.ticker == ticker }) {
+            return priceObj.price
+        }
+        // Fallback
+        switch selectedCurrency {
+        case "EUR": return 0.92
+        case "GBP": return 0.78
+        case "CAD": return 1.36
+        case "ILS": return 3.72
+        case "JPY": return 156.40
+        case "AUD": return 1.50
+        case "CHF": return 0.89
+        default: return 1.0
+        }
+    }
+    
+    private func formatCurrency(_ value: Double, code: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = AppGroupSettings.shared.getSymbol(for: code)
+        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0.00"
+    }
+    
     public init(portfolio: Portfolio) {
         self.portfolio = portfolio
     }
@@ -59,9 +88,16 @@ public struct PortfolioDetailView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             
-                            Text(formatCurrency(portfolioTotal))
-                                .font(.system(size: 36, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
+                            VStack(spacing: 4) {
+                                Text(formatCurrency(portfolioTotal, code: "USD"))
+                                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                
+                                let secondaryTotal = portfolioTotal * getExchangeRate()
+                                Text(formatCurrency(secondaryTotal, code: selectedCurrency))
+                                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                             
                             let change = calculator.calculateWeighted24hChange(for: portfolio, prices: priceInfoMap)
                             HStack(spacing: 4) {
@@ -155,10 +191,7 @@ public struct PortfolioDetailView: View {
     }
     
     private func formatCurrency(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        return formatCurrency(value, code: "USD")
     }
     
     private func formatShares(_ value: Double) -> String {
@@ -193,17 +226,22 @@ public struct PortfolioDetailView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                Text(formatCurrency(totalVal))
+                Text(formatCurrency(totalVal, code: "USD"))
                     .font(.body)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
+                let secondaryVal = totalVal * getExchangeRate()
+                Text(formatCurrency(secondaryVal, code: selectedCurrency))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.6))
+                
                 HStack(spacing: 4) {
-                    Text(formatCurrency(price))
+                    Text(formatCurrency(price, code: "USD"))
                     Text(String(format: "(%.1f%%)", change))
                         .foregroundColor(change >= 0 ? .green : .red)
                 }
-                .font(.caption)
+                .font(.system(size: 10))
                 .foregroundColor(.gray)
             }
         }

@@ -17,7 +17,12 @@ public struct RefreshPricesIntent: AppIntent {
         // Retrieve all unique stock tickers currently tracked in the database
         let positionsDescriptor = FetchDescriptor<Position>()
         let positions = (try? context.fetch(positionsDescriptor)) ?? []
-        let tickers = Array(Set(positions.map { $0.ticker }))
+        
+        let selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
+        let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
+        
+        var tickers = Array(Set(positions.map { $0.ticker }))
+        tickers.append(rateTicker)
         
         if tickers.isEmpty {
             return .result()

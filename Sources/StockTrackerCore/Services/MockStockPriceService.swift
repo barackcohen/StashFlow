@@ -6,7 +6,14 @@ public final class MockStockPriceService: StockPriceServiceProtocol, @unchecked 
         "TSLA": (180.20, -2.4),
         "MSFT": (420.10, 0.85),
         "GOOGL": (150.30, -0.4),
-        "AMZN": (185.00, 2.1)
+        "AMZN": (185.00, 2.1),
+        "USDEUR=X": (0.92, 0.1),
+        "USDGBP=X": (0.78, -0.05),
+        "USDCAD=X": (1.36, 0.15),
+        "USDILS=X": (3.72, -0.2),
+        "USDJPY=X": (156.40, 0.4),
+        "USDAUD=X": (1.50, 0.05),
+        "USDCHF=X": (0.89, -0.1)
     ]
     
     public init() {}

@@ -12,9 +12,35 @@ public struct DashboardView: View {
     @State private var newPortfolioName = ""
     @State private var newPortfolioColor = "#00F0FF"
     @State private var isRefreshing = false
+    @State private var selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
     
     private let calculator = PortfolioCalculator()
     private let priceService = StockPriceService()
+    
+    private func getExchangeRate() -> Double {
+        let ticker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
+        if let priceObj = cachedPrices.first(where: { $0.ticker == ticker }) {
+            return priceObj.price
+        }
+        // Fallback values if not loaded yet
+        switch selectedCurrency {
+        case "EUR": return 0.92
+        case "GBP": return 0.78
+        case "CAD": return 1.36
+        case "ILS": return 3.72
+        case "JPY": return 156.40
+        case "AUD": return 1.50
+        case "CHF": return 0.89
+        default: return 1.0
+        }
+    }
+    
+    private func formatCurrency(_ value: Double, code: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = AppGroupSettings.shared.getSymbol(for: code)
+        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0.00"
+    }
     
     private var priceMap: [String: Double] {
         var map: [String: Double] = [:]
@@ -70,6 +96,32 @@ public struct DashboardView: View {
                                     .foregroundColor(.white)
                             }
                             Spacer()
+                            
+                            // Currency Quick-Picker
+                            Menu {
+                                ForEach(AppGroupSettings.shared.supportedCurrencies, id: \.self) { currency in
+                                    Button(currency) {
+                                        selectedCurrency = currency
+                                        AppGroupSettings.shared.selectedSecondaryCurrency = currency
+                                        refreshAllPrices() // Fetch conversion rate immediately
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text("USD / \(selectedCurrency)")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(Color(hex: "#00F0FF"))
+                                    Image(systemName: "chevron.down")
+                                        .font(.caption2)
+                                        .foregroundColor(Color(hex: "#00F0FF"))
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.white.opacity(0.08))
+                                .clipShape(Capsule())
+                            }
+                            
                             Button(action: refreshAllPrices) {
                                 Image(systemName: isRefreshing ? "arrow.triangle.2.circlepath" : "arrow.clockwise")
                                     .font(.title3)
@@ -91,10 +143,17 @@ public struct DashboardView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                                 
-                                Text(formatCurrency(grandTotal))
-                                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .minimumScaleFactor(0.7)
+                                VStack(spacing: 4) {
+                                    Text(formatCurrency(grandTotal, code: "USD"))
+                                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                        .minimumScaleFactor(0.7)
+                                    
+                                    let secondaryTotal = grandTotal * getExchangeRate()
+                                    Text(formatCurrency(secondaryTotal, code: selectedCurrency))
+                                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
                                 
                                 let totalChange = calculateTotal24hChange()
                                 HStack(spacing: 4) {
@@ -199,16 +258,21 @@ public struct DashboardView: View {
                                                 Spacer()
                                                 
                                                 VStack(alignment: .trailing, spacing: 4) {
-                                                    Text(formatCurrency(total))
+                                                    Text(formatCurrency(total, code: "USD"))
                                                         .font(.body)
                                                         .fontWeight(.bold)
                                                         .foregroundColor(.white)
+                                                    
+                                                    let secondaryVal = total * getExchangeRate()
+                                                    Text(formatCurrency(secondaryVal, code: selectedCurrency))
+                                                        .font(.caption)
+                                                        .foregroundColor(.white.opacity(0.6))
                                                     
                                                     HStack(spacing: 2) {
                                                         Image(systemName: pctChange >= 0 ? "arrow.up" : "arrow.down")
                                                         Text(String(format: "%.2f%%", pctChange))
                                                     }
-                                                    .font(.caption)
+                                                    .font(.system(size: 10))
                                                     .foregroundColor(pctChange >= 0 ? .green : .red)
                                                 }
                                                 
@@ -244,10 +308,7 @@ public struct DashboardView: View {
     }
     
     private func formatCurrency(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "$"
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        return formatCurrency(value, code: "USD")
     }
     
     private func calculateTotal24hChange() -> Double {
@@ -262,7 +323,11 @@ public struct DashboardView: View {
     }
     
     private func refreshAllPrices() {
-        let tickers = Set(portfolios.flatMap { $0.positions.map { $0.ticker } })
+        var tickers = Set(portfolios.flatMap { $0.positions.map { $0.ticker } })
+        
+        let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
+        tickers.insert(rateTicker)
+        
         guard !tickers.isEmpty else { return }
         
         isRefreshing = true
