@@ -1,0 +1,41 @@
+name: StockPortfolios
+options:
+  bundleIdPrefix: com.barackcohen
+targets:
+  StockTrackerCore:
+    type: framework
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources/StockTrackerCore
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+
+  StockPortfolios:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: App
+        excludes:
+          - Widget
+          - Info.plist
+    dependencies:
+      - target: StockTrackerCore
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_FILE: App/Info.plist
+      PRODUCT_BUNDLE_IDENTIFIER: com.barackcohen.StockPortfolios
+
+  PortfolioWidgetExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: App/Widget
+    dependencies:
+      - target: StockTrackerCore
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_FILE: App/Widget/Info.plist
+      PRODUCT_BUNDLE_IDENTIFIER: com.barackcohen.StockPortfolios.Widget
