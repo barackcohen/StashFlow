@@ -173,7 +173,7 @@ public struct PortfolioDetailView: View {
                                     let totalVal = position.shares * price
                                     let secondaryVal = totalVal * getExchangeRate()
                                     
-                                    SwipeablePositionRow(
+                                    PositionRow(
                                         ticker: position.ticker,
                                         sharesText: "\(formatShares(position.shares)) shares",
                                         valueUSDText: formatCurrency(totalVal, code: "USD"),
@@ -238,6 +238,12 @@ struct EditPositionSheet: View {
     var onSave: () -> Void
     @Environment(\.dismiss) private var dismiss
     
+    private var parsedShares: Double? {
+        let cleanText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: ",", with: ".")
+        return Double(cleanText)
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -255,23 +261,34 @@ struct EditPositionSheet: View {
                             .background(Color.white.opacity(0.06))
                             .cornerRadius(12)
                             .foregroundColor(.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(parsedShares == nil && !sharesText.isEmpty ? Color.red.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                            )
+                        
+                        if parsedShares == nil && !sharesText.isEmpty {
+                            Text("Please enter a valid number of shares.")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
                     }
                     
                     Spacer()
                     
                     Button("Save Changes") {
-                        if let shares = Double(sharesText) {
+                        if let shares = parsedShares, shares > 0 {
                             position.shares = shares
                             onSave()
+                            dismiss()
                         }
-                        dismiss()
                     }
                     .font(.headline)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(hex: "#00F0FF"))
+                    .background(parsedShares != nil && (parsedShares ?? 0) > 0 ? Color(hex: "#00F0FF") : Color.gray.opacity(0.3))
                     .cornerRadius(16)
+                    .disabled(parsedShares == nil || (parsedShares ?? 0) <= 0)
                 }
                 .padding()
             }
@@ -289,9 +306,9 @@ struct EditPositionSheet: View {
     }
 }
 
-// MARK: - SwipeablePositionRow
+// MARK: - PositionRow
 
-struct SwipeablePositionRow: View {
+struct PositionRow: View {
     let ticker: String
     let sharesText: String
     let valueUSDText: String
@@ -303,114 +320,58 @@ struct SwipeablePositionRow: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     
-    @State private var offset: CGFloat = 0.0
-    @State private var isSwiped = false
-    
     var body: some View {
-        ZStack {
-            // Background buttons (Edit & Delete)
-            HStack(spacing: 0) {
-                Spacer()
-                
-                Button(action: {
-                    withAnimation(.spring()) {
-                        offset = 0
-                        isSwiped = false
-                    }
-                    onEdit()
-                }) {
-                    Image(systemName: "pencil")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(width: 70)
-                        .frame(maxHeight: .infinity)
-                        .background(Color.blue)
-                }
-                
-                Button(action: {
-                    withAnimation(.spring()) {
-                        offset = 0
-                        isSwiped = false
-                    }
-                    onDelete()
-                }) {
-                    Image(systemName: "trash")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .frame(width: 70)
-                        .frame(maxHeight: .infinity)
-                        .background(Color.red)
-                }
-            }
-            .background(Color.red)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            
-            // Foreground row
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(ticker)
-                        .font(.body)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text(sharesText)
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(valueUSDText)
-                        .font(.body)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text(valueSecondaryText)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                    
-                    HStack(spacing: 4) {
-                        Text(priceText)
-                        Text(changeText)
-                            .foregroundColor(isChangePositive ? .green : .red)
-                    }
-                    .font(.system(size: 10))
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(ticker)
+                    .font(.body)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                Text(sharesText)
+                    .font(.caption)
                     .foregroundColor(.gray)
-                }
             }
-            .padding()
-            .background(Color(hex: "#090909")) // Solid deep dark background to cover behind views
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .offset(x: offset)
-            .gesture(
-                DragGesture()
-                    .onChanged { gesture in
-                        if gesture.translation.width < 0 {
-                            let newOffset = isSwiped ? gesture.translation.width - 140 : gesture.translation.width
-                            offset = max(newOffset, -150)
-                        } else if gesture.translation.width > 0 && isSwiped {
-                            let newOffset = gesture.translation.width - 140
-                            offset = min(newOffset, 0)
-                        }
-                    }
-                    .onEnded { gesture in
-                        withAnimation(.spring()) {
-                            if gesture.translation.width < -50 {
-                                offset = -140
-                                isSwiped = true
-                            } else if gesture.translation.width > 50 {
-                                offset = 0
-                                isSwiped = false
-                            } else {
-                                offset = isSwiped ? -140 : 0
-                            }
-                        }
-                    }
-            )
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(valueUSDText)
+                    .font(.body)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text(valueSecondaryText)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.6))
+                
+                HStack(spacing: 4) {
+                    Text(priceText)
+                    Text(changeText)
+                        .foregroundColor(isChangePositive ? .green : .red)
+                }
+                .font(.system(size: 10))
+                .foregroundColor(.gray)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.04))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .contextMenu {
+            Button {
+                onEdit()
+            } label: {
+                Label("Edit Shares", systemImage: "pencil")
+            }
+            
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Delete Position", systemImage: "trash")
+            }
         }
     }
 }
