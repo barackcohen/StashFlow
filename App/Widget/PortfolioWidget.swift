@@ -84,7 +84,6 @@ struct PortfolioProvider: TimelineProvider {
             ))
         }
         
-        // Sort portfolios by value descending
         items.sort(by: { $0.value > $1.value })
         
         let totalChange = total > 0 ? (weightedSum / total) : 0.0
@@ -105,15 +104,7 @@ struct PortfolioWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     
     var body: some View {
-        ZStack {
-            Color.black
-            RadialGradient(
-                colors: [Color(hex: "#8A2BE2").opacity(0.25), Color.black],
-                center: .bottomTrailing,
-                startRadius: 5,
-                endRadius: 90
-            )
-            
+        Group {
             switch family {
             case .systemSmall:
                 smallLayout
@@ -181,7 +172,6 @@ struct PortfolioWidgetEntryView: View {
     
     private var mediumLayout: some View {
         HStack(spacing: 16) {
-            // Left Column (Total Balance summary)
             VStack(alignment: .leading, spacing: 6) {
                 Text("Total Balance")
                     .font(.caption2)
@@ -236,7 +226,6 @@ struct PortfolioWidgetEntryView: View {
             Divider()
                 .background(Color.white.opacity(0.1))
             
-            // Right Column (Top Portfolios)
             VStack(alignment: .leading, spacing: 8) {
                 Text("Portfolios")
                     .font(.caption2)
@@ -284,8 +273,6 @@ struct PortfolioWidgetEntryView: View {
         .padding(12)
     }
     
-    // MARK: - Helpers
-    
     private func formatCurrency(_ value: Double) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -301,7 +288,17 @@ struct PortfolioWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PortfolioProvider()) { entry in
             PortfolioWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+                .containerBackground(for: .widget) {
+                    ZStack {
+                        Color.black
+                        RadialGradient(
+                            colors: [Color(hex: "#8A2BE2").opacity(0.25), Color.black],
+                            center: .bottomTrailing,
+                            startRadius: 5,
+                            endRadius: 90
+                        )
+                    }
+                }
         }
         .configurationDisplayName("Portfolio Tracker")
         .description("Track your total investments at a glance.")
