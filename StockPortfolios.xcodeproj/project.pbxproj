@@ -21,6 +21,7 @@
 		6B122EB269405782C8956FB0 /* MockStockPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C046A1AFE4017AE4F1F970 /* MockStockPriceService.swift */; };
 		759452E8646CD610BAA3DF8F /* PortfolioDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79718E0B9B02528700135A8A /* PortfolioDetailView.swift */; };
 		910242E2FE77BD5BDDF1EFC8 /* StockPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976437EBF815FAA8C010B2A2 /* StockPrice.swift */; };
+		934DEEBB0D31012193CB37B0 /* PortfolioWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FFD70212CE9CC94486C7D35 /* PortfolioWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		972FFC9811F875E48ADDC0B1 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F571D86F9993718D7D8FB97 /* StorageManager.swift */; };
 		C7D39421B56B7D86F5786EC2 /* PortfolioCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1F7D7DE2BE6161F968DFC /* PortfolioCalculator.swift */; };
 		D4B4D14E157847D02241412D /* StockPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BEB965E043F60222B1838D /* StockPriceService.swift */; };
@@ -29,6 +30,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3BC1D5AB3D3543E5B4916CC6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E322445583E26C012AB1D1C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5FEFA854D6AC23B6A0BE7461;
+			remoteInfo = PortfolioWidgetExtension;
+		};
 		701078CF0E7B42EF71E2262E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4E322445583E26C012AB1D1C /* Project object */;
@@ -55,6 +63,17 @@
 				27EA955DEABBB44DDB304832 /* StockTrackerCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8D0C6EDCA955A16E2963169 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				934DEEBB0D31012193CB37B0 /* PortfolioWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -203,12 +222,14 @@
 			buildPhases = (
 				0975828D19E16422F34D9F32 /* Sources */,
 				A2F1D12E9207A801FA3A69C4 /* Frameworks */,
+				D8D0C6EDCA955A16E2963169 /* Embed Foundation Extensions */,
 				681492EDF67533DDC2731110 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				2CE1EAE854F84A66977C4F6C /* PBXTargetDependency */,
+				0842C9908D153CF5D295B77A /* PBXTargetDependency */,
 			);
 			name = StockPortfolios;
 			packageProductDependencies = (
@@ -326,6 +347,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0842C9908D153CF5D295B77A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5FEFA854D6AC23B6A0BE7461 /* PortfolioWidgetExtension */;
+			targetProxy = 3BC1D5AB3D3543E5B4916CC6 /* PBXContainerItemProxy */;
+		};
 		2CE1EAE854F84A66977C4F6C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F440AE722F6F7F7FE0FEE821 /* StockTrackerCore */;
