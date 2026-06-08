@@ -263,7 +263,7 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                 }
             }
-            .frame(width: 120, alignment: .leading)
+            .frame(width: 108, alignment: .leading)
             
             Divider()
                 .background(Color.white.opacity(0.08))
@@ -293,6 +293,7 @@ struct PortfolioWidgetEntryView: View {
                                         .font(.system(size: nameFontSize, weight: .bold))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
+                                        .layoutPriority(1)
                                     
                                     Spacer()
                                     
@@ -330,7 +331,7 @@ struct PortfolioWidgetEntryView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.vertical, 14)
     }
     
