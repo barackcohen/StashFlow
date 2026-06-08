@@ -27,6 +27,7 @@
 		D4B4D14E157847D02241412D /* StockPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BEB965E043F60222B1838D /* StockPriceService.swift */; };
 		DB4D84F86B89FFF150248383 /* StockTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9478A38E9F9A23FDAFD38C /* StockTrackerApp.swift */; };
 		F2A8F88D9F90EBC40BCB5F14 /* Portfolio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFFF6ED6A14389F3D4F6B95 /* Portfolio.swift */; };
+		FD83D4E4C3C99A0E5D748037 /* AppGroupSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A38E75966616F0C31CAADB7 /* AppGroupSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,7 @@
 		080935A0CDC6FEE6701B943A /* PortfolioWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioWidget.swift; sourceTree = "<group>"; };
 		2EB43A81C5765F857A9E08A5 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		3A26638E204D25A8BB2C6774 /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
+		3A38E75966616F0C31CAADB7 /* AppGroupSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSettings.swift; sourceTree = "<group>"; };
 		4F571D86F9993718D7D8FB97 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		4FFD70212CE9CC94486C7D35 /* PortfolioWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PortfolioWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		51C046A1AFE4017AE4F1F970 /* MockStockPriceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStockPriceService.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 		236B7280FF3849D8DBBEFA8A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				3A38E75966616F0C31CAADB7 /* AppGroupSettings.swift */,
 				4F571D86F9993718D7D8FB97 /* StorageManager.swift */,
 			);
 			path = Storage;
@@ -332,6 +335,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FD83D4E4C3C99A0E5D748037 /* AppGroupSettings.swift in Sources */,
 				6B122EB269405782C8956FB0 /* MockStockPriceService.swift in Sources */,
 				F2A8F88D9F90EBC40BCB5F14 /* Portfolio.swift in Sources */,
 				C7D39421B56B7D86F5786EC2 /* PortfolioCalculator.swift in Sources */,
