@@ -47,6 +47,55 @@ public struct PortfolioDetailView: View {
         }
     }
     
+    struct ChartItem: Identifiable {
+        let id: String
+        let ticker: String
+        let value: Double
+    }
+    
+    private var chartItems: [ChartItem] {
+        let rawItems = sortedPositions.map { p in
+            let price = priceMap[p.ticker] ?? 0.0
+            return ChartItem(
+                id: p.ticker,
+                ticker: p.ticker,
+                value: Double(p.shares) * price
+            )
+        }
+        
+        if rawItems.count <= 15 {
+            return rawItems
+        } else {
+            var items = Array(rawItems.prefix(14))
+            let otherValue = rawItems[14...].reduce(0.0) { $0 + $1.value }
+            items.append(ChartItem(
+                id: "Other",
+                ticker: "Other",
+                value: otherValue
+            ))
+            return items
+        }
+    }
+    
+    private let chartColors: [Color] = [
+        Color(hex: "#00F0FF"), // Neon Cyan
+        Color(hex: "#8A2BE2"), // Purple
+        Color(hex: "#FF007F"), // Neon Pink
+        Color(hex: "#00FF87"), // Neon Mint
+        Color(hex: "#FF9F0A"), // Orange
+        Color(hex: "#BF5AF2"), // Violet
+        Color(hex: "#30D158"), // Green
+        Color(hex: "#FF375F"), // Red/Rose
+        Color(hex: "#64D2FF"), // Light Blue
+        Color(hex: "#FFD60A"), // Yellow
+        Color(hex: "#FF453A"), // Coral Red
+        Color(hex: "#007AFF"), // Blue
+        Color(hex: "#AF52DE"), // Plum
+        Color(hex: "#5E5CE6"), // Indigo
+        Color(hex: "#4CD964"), // Lime Green
+        Color(hex: "#FFCC00")  // Gold
+    ]
+    
     private var selectedCurrency: String {
         AppGroupSettings.shared.selectedSecondaryCurrency
     }
@@ -138,17 +187,14 @@ public struct PortfolioDetailView: View {
                                     HStack {
                                         Spacer()
                                         Chart {
-                                            ForEach(Array(sortedPositions.enumerated()), id: \.element.id) { index, position in
-                                                let price = priceMap[position.ticker] ?? 0.0
-                                                let val = Double(position.shares) * price
-                                                let opacity = 1.0 - (Double(index) / Double(max(sortedPositions.count, 1))) * 0.65
-                                                
+                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
+                                                let color = chartColors[index % chartColors.count]
                                                 SectorMark(
-                                                    angle: .value("Value", val),
+                                                    angle: .value("Value", item.value),
                                                     innerRadius: .ratio(0.7),
                                                     angularInset: 1.5
                                                 )
-                                                .foregroundStyle(Color(hex: portfolio.hexColor).opacity(opacity))
+                                                .foregroundStyle(color)
                                             }
                                         }
                                         .frame(width: 130, height: 130)
@@ -157,19 +203,49 @@ public struct PortfolioDetailView: View {
                                     .frame(maxWidth: .infinity)
                                     
                                     // Bottom Right: The legend (names only, even smaller text)
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        ForEach(Array(sortedPositions.enumerated()), id: \.element.id) { index, position in
-                                            let opacity = 1.0 - (Double(index) / Double(max(sortedPositions.count, 1))) * 0.65
-                                            HStack(spacing: 6) {
-                                                Circle()
-                                                    .fill(Color(hex: portfolio.hexColor).opacity(opacity))
-                                                    .frame(width: 6, height: 6)
-                                                    .shadow(color: Color(hex: portfolio.hexColor).opacity(opacity * 0.5), radius: 1.5, x: 0, y: 0)
-                                                
-                                                Text(position.ticker)
-                                                    .font(.system(size: 10, weight: .bold))
-                                                    .foregroundColor(.gray)
-                                                    .lineLimit(1)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        let items = chartItems
+                                        let useGrid = items.count > 5
+                                        
+                                        if useGrid {
+                                            LazyVGrid(
+                                                columns: [
+                                                    GridItem(.fixed(50), alignment: .leading),
+                                                    GridItem(.fixed(50), alignment: .leading)
+                                                ],
+                                                alignment: .leading,
+                                                spacing: 6
+                                            ) {
+                                                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                                                    let color = chartColors[index % chartColors.count]
+                                                    HStack(spacing: 4) {
+                                                        Circle()
+                                                            .fill(color)
+                                                            .frame(width: 5, height: 5)
+                                                            .shadow(color: color.opacity(0.4), radius: 1, x: 0, y: 0)
+                                                        
+                                                        Text(item.ticker)
+                                                            .font(.system(size: 8, weight: .bold))
+                                                            .foregroundColor(.gray)
+                                                            .lineLimit(1)
+                                                    }
+                                                }
+                                            }
+                                            .frame(width: 104)
+                                        } else {
+                                            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                                                let color = chartColors[index % chartColors.count]
+                                                HStack(spacing: 6) {
+                                                    Circle()
+                                                        .fill(color)
+                                                        .frame(width: 6, height: 6)
+                                                        .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
+                                                    
+                                                    Text(item.ticker)
+                                                        .font(.system(size: 10, weight: .bold))
+                                                        .foregroundColor(.gray)
+                                                        .lineLimit(1)
+                                                }
                                             }
                                         }
                                     }
