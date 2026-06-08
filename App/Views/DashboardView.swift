@@ -13,6 +13,9 @@ public struct DashboardView: View {
     @State private var newPortfolioColor = "#00F0FF"
     @State private var isRefreshing = false
     @State private var selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
+    @State private var username = AppGroupSettings.shared.username
+    @State private var isEditingName = false
+    @State private var tempName = ""
     
     private let calculator = PortfolioCalculator()
     private let priceService = StockPriceService()
@@ -90,10 +93,35 @@ public struct DashboardView: View {
                                 Text("Good Morning,")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
-                                Text("Sarah")
+                                
+                                if isEditingName {
+                                    TextField("Your name", text: $tempName, onCommit: {
+                                        let cleanName = tempName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                        if !cleanName.isEmpty {
+                                            username = cleanName
+                                            AppGroupSettings.shared.username = cleanName
+                                        }
+                                        isEditingName = false
+                                    })
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
+                                    .textFieldStyle(PlainTextFieldStyle())
+                                } else {
+                                    HStack(spacing: 6) {
+                                        Text(username)
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                        Image(systemName: "pencil")
+                                            .font(.caption2)
+                                            .foregroundColor(.gray)
+                                    }
+                                    .onTapGesture {
+                                        tempName = username
+                                        isEditingName = true
+                                    }
+                                }
                             }
                             Spacer()
                             

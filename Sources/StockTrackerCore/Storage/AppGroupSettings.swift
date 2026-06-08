@@ -20,6 +20,15 @@ public final class AppGroupSettings: Sendable {
         }
     }
     
+    public var username: String {
+        get {
+            suite?.string(forKey: "username") ?? "Sarah"
+        }
+        set {
+            suite?.set(newValue, forKey: "username")
+        }
+    }
+    
     /// Converts a currency code to its symbol.
     public func getSymbol(for currency: String) -> String {
         switch currency.uppercased() {
