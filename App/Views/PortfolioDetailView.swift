@@ -168,7 +168,28 @@ public struct PortfolioDetailView: View {
                         } else {
                             VStack(spacing: 12) {
                                 ForEach(portfolio.positions) { position in
-                                    positionRow(for: position)
+                                    let price = priceMap[position.ticker] ?? 0.0
+                                    let change = priceInfoMap[position.ticker]?.change24h ?? 0.0
+                                    let totalVal = position.shares * price
+                                    let secondaryVal = totalVal * getExchangeRate()
+                                    
+                                    SwipeablePositionRow(
+                                        ticker: position.ticker,
+                                        sharesText: "\(formatShares(position.shares)) shares",
+                                        valueUSDText: formatCurrency(totalVal, code: "USD"),
+                                        valueSecondaryText: formatCurrency(secondaryVal, code: selectedCurrency),
+                                        priceText: formatCurrency(price, code: "USD"),
+                                        changeText: String(format: "(%.1f%%)", change),
+                                        isChangePositive: change >= 0,
+                                        hexColor: portfolio.hexColor,
+                                        onEdit: {
+                                            editSharesText = String(position.shares)
+                                            positionToEdit = position
+                                        },
+                                        onDelete: {
+                                            deletePosition(position)
+                                        }
+                                    )
                                 }
                             }
                             .padding(.horizontal)
@@ -206,64 +227,7 @@ public struct PortfolioDetailView: View {
         try? modelContext.save()
     }
     
-    @ViewBuilder
-    private func positionRow(for position: Position) -> some View {
-        let price = priceMap[position.ticker] ?? 0.0
-        let change = priceInfoMap[position.ticker]?.change24h ?? 0.0
-        let totalVal = position.shares * price
-        
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(position.ticker)
-                    .font(.body)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                Text("\(formatShares(position.shares)) shares")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(formatCurrency(totalVal, code: "USD"))
-                    .font(.body)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                let secondaryVal = totalVal * getExchangeRate()
-                Text(formatCurrency(secondaryVal, code: selectedCurrency))
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
-                
-                HStack(spacing: 4) {
-                    Text(formatCurrency(price, code: "USD"))
-                    Text(String(format: "(%.1f%%)", change))
-                        .foregroundColor(change >= 0 ? .green : .red)
-                }
-                .font(.system(size: 10))
-                .foregroundColor(.gray)
-            }
-        }
-        .padding()
-        .background(Color.white.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                deletePosition(position)
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-            
-            Button {
-                editSharesText = String(position.shares)
-                positionToEdit = position
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-            .tint(.blue)
-        }
-    }
+    // SwipeablePositionRow is defined below as a separate view struct.
 }
 
 // MARK: - EditPositionSheet
@@ -321,6 +285,132 @@ struct EditPositionSheet: View {
                     .foregroundColor(.gray)
                 }
             }
+        }
+    }
+}
+
+// MARK: - SwipeablePositionRow
+
+struct SwipeablePositionRow: View {
+    let ticker: String
+    let sharesText: String
+    let valueUSDText: String
+    let valueSecondaryText: String
+    let priceText: String
+    let changeText: String
+    let isChangePositive: Bool
+    let hexColor: String
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    @State private var offset: CGFloat = 0.0
+    @State private var isSwiped = false
+    
+    var body: some View {
+        ZStack {
+            // Background buttons (Edit & Delete)
+            HStack(spacing: 0) {
+                Spacer()
+                
+                Button(action: {
+                    withAnimation(.spring()) {
+                        offset = 0
+                        isSwiped = false
+                    }
+                    onEdit()
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(width: 70)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.blue)
+                }
+                
+                Button(action: {
+                    withAnimation(.spring()) {
+                        offset = 0
+                        isSwiped = false
+                    }
+                    onDelete()
+                }) {
+                    Image(systemName: "trash")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(width: 70)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.red)
+                }
+            }
+            .background(Color.red)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            
+            // Foreground row
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(ticker)
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text(sharesText)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(valueUSDText)
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text(valueSecondaryText)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.6))
+                    
+                    HStack(spacing: 4) {
+                        Text(priceText)
+                        Text(changeText)
+                            .foregroundColor(isChangePositive ? .green : .red)
+                    }
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+                }
+            }
+            .padding()
+            .background(Color(hex: "#090909")) // Solid deep dark background to cover behind views
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .offset(x: offset)
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        if gesture.translation.width < 0 {
+                            let newOffset = isSwiped ? gesture.translation.width - 140 : gesture.translation.width
+                            offset = max(newOffset, -150)
+                        } else if gesture.translation.width > 0 && isSwiped {
+                            let newOffset = gesture.translation.width - 140
+                            offset = min(newOffset, 0)
+                        }
+                    }
+                    .onEnded { gesture in
+                        withAnimation(.spring()) {
+                            if gesture.translation.width < -50 {
+                                offset = -140
+                                isSwiped = true
+                            } else if gesture.translation.width > 50 {
+                                offset = 0
+                                isSwiped = false
+                            } else {
+                                offset = isSwiped ? -140 : 0
+                            }
+                        }
+                    }
+            )
         }
     }
 }
