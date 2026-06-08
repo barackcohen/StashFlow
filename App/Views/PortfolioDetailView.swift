@@ -182,77 +182,41 @@ public struct PortfolioDetailView: View {
                                     .font(.headline)
                                     .foregroundColor(.white)
                                 
-                                ZStack(alignment: .bottomTrailing) {
-                                    // Center: The donut chart diagram
-                                    HStack {
-                                        Spacer()
-                                        Chart {
-                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
-                                                let color = chartColors[index % chartColors.count]
-                                                SectorMark(
-                                                    angle: .value("Value", item.value),
-                                                    innerRadius: .ratio(0.7),
-                                                    angularInset: 1.5
-                                                )
-                                                .foregroundStyle(color)
-                                            }
+                                HStack(spacing: 24) {
+                                    // Left: The donut chart diagram (centered vertically)
+                                    Chart {
+                                        ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
+                                            let color = chartColors[index % chartColors.count]
+                                            SectorMark(
+                                                angle: .value("Value", item.value),
+                                                innerRadius: .ratio(0.7),
+                                                angularInset: 1.5
+                                            )
+                                            .foregroundStyle(color)
                                         }
-                                        .frame(width: 130, height: 130)
-                                        Spacer()
                                     }
-                                    .frame(maxWidth: .infinity)
+                                    .frame(width: 130, height: 130)
                                     
-                                    // Bottom Right: The legend (names only, even smaller text)
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        let items = chartItems
-                                        let useGrid = items.count > 5
-                                        
-                                        if useGrid {
-                                            LazyVGrid(
-                                                columns: [
-                                                    GridItem(.fixed(50), alignment: .leading),
-                                                    GridItem(.fixed(50), alignment: .leading)
-                                                ],
-                                                alignment: .leading,
-                                                spacing: 6
-                                            ) {
-                                                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                                                    let color = chartColors[index % chartColors.count]
-                                                    HStack(spacing: 4) {
-                                                        Circle()
-                                                            .fill(color)
-                                                            .frame(width: 5, height: 5)
-                                                            .shadow(color: color.opacity(0.4), radius: 1, x: 0, y: 0)
-                                                        
-                                                        Text(item.ticker)
-                                                            .font(.system(size: 8, weight: .bold))
-                                                            .foregroundColor(.gray)
-                                                            .lineLimit(1)
-                                                    }
-                                                }
-                                            }
-                                            .frame(width: 104)
-                                        } else {
-                                            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                                                let color = chartColors[index % chartColors.count]
-                                                HStack(spacing: 6) {
-                                                    Circle()
-                                                        .fill(color)
-                                                        .frame(width: 6, height: 6)
-                                                        .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
-                                                    
-                                                    Text(item.ticker)
-                                                        .font(.system(size: 10, weight: .bold))
-                                                        .foregroundColor(.gray)
-                                                        .lineLimit(1)
-                                                }
+                                    // Right: The legend (single column, vertically centered)
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
+                                            let color = chartColors[index % chartColors.count]
+                                            HStack(spacing: 6) {
+                                                Circle()
+                                                    .fill(color)
+                                                    .frame(width: 6, height: 6)
+                                                    .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
+                                                
+                                                Text(item.ticker)
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundColor(.white.opacity(0.9))
+                                                    .lineLimit(1)
                                             }
                                         }
                                     }
-                                    .padding(.trailing, 8)
-                                    .padding(.bottom, 4)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                .frame(height: 130)
+                                .padding(.vertical, 8)
                             }
                         }
                         .padding(.horizontal)
