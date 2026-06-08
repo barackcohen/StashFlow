@@ -3,6 +3,17 @@ import Foundation
 public protocol StockPriceServiceProtocol: Sendable {
     func fetchPrice(for ticker: String) async throws -> (price: Double, change24h: Double)
     func fetchPrices(for tickers: [String]) async -> [String: (price: Double, change24h: Double)]
+    func searchSymbols(query: String) async throws -> [SymbolSearchResult]
+}
+
+public struct SymbolSearchResult: Codable, Identifiable, Sendable {
+    public var id: String { symbol }
+    public let symbol: String
+    public let shortname: String?
+    public let longname: String?
+    public let exchange: String
+    public let exchDisp: String?
+    public let typeDisp: String?
 }
 
 public final class StockPriceService: StockPriceServiceProtocol, @unchecked Sendable {
@@ -77,9 +88,56 @@ public final class StockPriceService: StockPriceServiceProtocol, @unchecked Send
                 }
             }
         }
-        
         return results
     }
+    
+    public func searchSymbols(query: String) async throws -> [SymbolSearchResult] {
+        let cleanQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanQuery.isEmpty else { return [] }
+        
+        guard let encodedQuery = cleanQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "https://query1.finance.yahoo.com/v1/finance/search?q=\(encodedQuery)") else {
+            throw NSError(domain: "StockPriceService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid query"])
+        }
+        
+        var request = URLRequest(url: url)
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36", forHTTPHeaderField: "User-Agent")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "StockPriceService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to search symbols"])
+        }
+        
+        let decoder = JSONDecoder()
+        let result = try decoder.decode(YahooSearchResponse.self, from: data)
+        
+        // Filter out results that are not stocks, ETFs, or index instruments (e.g. news items)
+        return result.quotes.map { quote in
+            SymbolSearchResult(
+                symbol: quote.symbol,
+                shortname: quote.shortname,
+                longname: quote.longname,
+                exchange: quote.exchange,
+                exchDisp: quote.exchDisp,
+                typeDisp: quote.typeDisp
+            )
+        }
+    }
+}
+
+// MARK: - Yahoo Search Response Mapping Structs
+
+private struct YahooSearchResponse: Codable {
+    struct Quote: Codable {
+        let symbol: String
+        let shortname: String?
+        let longname: String?
+        let exchange: String
+        let exchDisp: String?
+        let typeDisp: String?
+    }
+    let quotes: [Quote]
 }
 
 // MARK: - Yahoo Finance JSON Mapping Structs

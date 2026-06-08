@@ -13,6 +13,9 @@ public struct AddPositionView: View {
     @State private var sharesText = ""
     @State private var isValidating = false
     @State private var errorMessage = ""
+    @FocusState private var isTickerFocused: Bool
+    @State private var searchResults: [SymbolSearchResult] = []
+    @State private var isSearching = false
     
     private let priceService = StockPriceService()
     
@@ -25,6 +28,9 @@ public struct AddPositionView: View {
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
+                    .onTapGesture {
+                        isTickerFocused = false
+                    }
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
@@ -33,18 +39,109 @@ public struct AddPositionView: View {
                             .foregroundColor(.gray)
                             .textCase(.uppercase)
                         
-                        TextField("e.g. AAPL, TSLA, MSFT", text: $ticker)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.characters)
-                            .padding()
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(12)
-                            .foregroundColor(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
+                        ZStack(alignment: .top) {
+                            TextField("e.g. AAPL, TSLA, MSFT", text: $ticker)
+                                .focused($isTickerFocused)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.characters)
+                                .padding()
+                                .background(Color.white.opacity(0.06))
+                                .cornerRadius(12)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                                .overlay(
+                                    HStack {
+                                        Spacer()
+                                        if isSearching {
+                                            ProgressView()
+                                                .tint(.white)
+                                                .padding(.trailing, 16)
+                                        }
+                                    }
+                                )
+                            
+                            if isTickerFocused && !searchResults.isEmpty {
+                                ScrollView {
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        ForEach(searchResults) { result in
+                                            Button(action: {
+                                                ticker = result.symbol
+                                                searchResults = []
+                                                isTickerFocused = false
+                                            }) {
+                                                HStack(spacing: 12) {
+                                                    VStack(alignment: .leading, spacing: 4) {
+                                                        Text(result.symbol)
+                                                            .font(.system(.headline, design: .monospaced))
+                                                            .foregroundColor(.white)
+                                                        
+                                                        if let name = result.longname ?? result.shortname {
+                                                            Text(name)
+                                                                .font(.caption)
+                                                                .foregroundColor(.gray)
+                                                                .lineLimit(1)
+                                                                .multilineTextAlignment(.leading)
+                                                        }
+                                                    }
+                                                    
+                                                    Spacer()
+                                                    
+                                                    if let exch = result.exchDisp ?? (result.exchange.isEmpty ? nil : result.exchange) {
+                                                        Text(exch)
+                                                            .font(.caption2)
+                                                            .fontWeight(.semibold)
+                                                            .padding(.horizontal, 8)
+                                                            .padding(.vertical, 4)
+                                                            .background(Color.white.opacity(0.1))
+                                                            .cornerRadius(6)
+                                                            .foregroundColor(.gray)
+                                                    }
+                                                    
+                                                    if let type = result.typeDisp {
+                                                        Text(type)
+                                                            .font(.caption2)
+                                                            .fontWeight(.semibold)
+                                                            .padding(.horizontal, 8)
+                                                            .padding(.vertical, 4)
+                                                            .background(
+                                                                LinearGradient(
+                                                                    colors: [Color(hex: "#00F0FF").opacity(0.15), Color(hex: "#8A2BE2").opacity(0.15)],
+                                                                    startPoint: .leading,
+                                                                    endPoint: .trailing
+                                                                )
+                                                            )
+                                                            .cornerRadius(6)
+                                                            .foregroundColor(Color(hex: "#00F0FF"))
+                                                    }
+                                                }
+                                                .padding(.vertical, 12)
+                                                .padding(.horizontal, 16)
+                                                .contentShape(Rectangle())
+                                            }
+                                            
+                                            if result.symbol != searchResults.last?.symbol {
+                                                Divider()
+                                                    .background(Color.white.opacity(0.1))
+                                            }
+                                        }
+                                    }
+                                }
+                                .frame(maxHeight: 220)
+                                .background(Color(hex: "#121212").opacity(0.95))
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                )
+                                .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 10)
+                                .offset(y: 58)
+                            }
+                        }
                     }
+                    .zIndex(1)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Number of Shares")
@@ -102,6 +199,33 @@ public struct AddPositionView: View {
                         isPresented = false
                     }
                     .foregroundColor(.gray)
+                }
+            }
+            .task(id: ticker) {
+                let cleanTicker = ticker.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !cleanTicker.isEmpty else {
+                    searchResults = []
+                    isSearching = false
+                    return
+                }
+                
+                guard isTickerFocused else { return }
+                
+                isSearching = true
+                do {
+                    try await Task.sleep(for: .seconds(0.3))
+                    
+                    let results = try await priceService.searchSymbols(query: cleanTicker)
+                    await MainActor.run {
+                        self.searchResults = results
+                        self.isSearching = false
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        await MainActor.run {
+                            self.isSearching = false
+                        }
+                    }
                 }
             }
         }

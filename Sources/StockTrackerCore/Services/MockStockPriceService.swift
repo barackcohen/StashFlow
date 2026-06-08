@@ -38,4 +38,18 @@ public final class MockStockPriceService: StockPriceServiceProtocol, @unchecked 
         }
         return results
     }
+    
+    public func searchSymbols(query: String) async throws -> [SymbolSearchResult] {
+        let cleanQuery = query.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanQuery.isEmpty else { return [] }
+        
+        let mockResults = [
+            SymbolSearchResult(symbol: "CSPX.L", shortname: "iShares Core S&P 500 UCITS ETF USD (Acc)", longname: "iShares VII Public Limited Company - iShares Core S&P 500 UCITS ETF", exchange: "LSE", exchDisp: "London", typeDisp: "ETF"),
+            SymbolSearchResult(symbol: "EQQS.L", shortname: "Invesco NASDAQ-100 Swap UCITS ETF", longname: "Invesco NASDAQ-100 Swap UCITS ETF", exchange: "LSE", exchDisp: "London", typeDisp: "ETF"),
+            SymbolSearchResult(symbol: "AAPL", shortname: "Apple Inc.", longname: "Apple Inc.", exchange: "NMS", exchDisp: "NASDAQ", typeDisp: "Equity"),
+            SymbolSearchResult(symbol: "TSLA", shortname: "Tesla, Inc.", longname: "Tesla, Inc.", exchange: "NMS", exchDisp: "NASDAQ", typeDisp: "Equity")
+        ]
+        
+        return mockResults.filter { $0.symbol.contains(cleanQuery) || ($0.shortname?.uppercased().contains(cleanQuery) ?? false) }
+    }
 }
