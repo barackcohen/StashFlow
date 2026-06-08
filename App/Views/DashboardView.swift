@@ -211,47 +211,44 @@ public struct DashboardView: View {
                                         .font(.headline)
                                         .foregroundColor(.white)
                                     
-                                    GeometryReader { geo in
-                                        HStack(spacing: 0) {
-                                            // Left 2/3: The donut chart diagram
-                                            HStack {
-                                                Spacer()
-                                                Chart {
-                                                    ForEach(portfolios) { portfolio in
-                                                        let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
-                                                        SectorMark(
-                                                            angle: .value("Value", val),
-                                                            innerRadius: .ratio(0.7),
-                                                            angularInset: 1.5
-                                                        )
-                                                        .foregroundStyle(Color(hex: portfolio.hexColor))
-                                                    }
-                                                }
-                                                .frame(width: 130, height: 130)
-                                                Spacer()
-                                            }
-                                            .frame(width: geo.size.width * 0.65)
-                                            
-                                            // Right 1/3: The legend (names only)
-                                            VStack(alignment: .leading, spacing: 10) {
-                                                Spacer()
+                                    ZStack(alignment: .bottomTrailing) {
+                                        // Center: The donut chart diagram
+                                        HStack {
+                                            Spacer()
+                                            Chart {
                                                 ForEach(portfolios) { portfolio in
-                                                    HStack(spacing: 8) {
-                                                        Circle()
-                                                            .fill(Color(hex: portfolio.hexColor))
-                                                            .frame(width: 8, height: 8)
-                                                            .shadow(color: Color(hex: portfolio.hexColor).opacity(0.5), radius: 2, x: 0, y: 0)
-                                                        
-                                                        Text(portfolio.name)
-                                                            .font(.system(size: 13, weight: .bold))
-                                                            .foregroundColor(.white)
-                                                            .lineLimit(1)
-                                                    }
+                                                    let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
+                                                    SectorMark(
+                                                        angle: .value("Value", val),
+                                                        innerRadius: .ratio(0.7),
+                                                        angularInset: 1.5
+                                                    )
+                                                    .foregroundStyle(Color(hex: portfolio.hexColor))
                                                 }
-                                                Spacer()
                                             }
-                                            .frame(width: geo.size.width * 0.35, alignment: .leading)
+                                            .frame(width: 130, height: 130)
+                                            Spacer()
                                         }
+                                        .frame(maxWidth: .infinity)
+                                        
+                                        // Bottom Right: The legend (names only, even smaller text)
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            ForEach(portfolios) { portfolio in
+                                                HStack(spacing: 6) {
+                                                    Circle()
+                                                        .fill(Color(hex: portfolio.hexColor))
+                                                        .frame(width: 6, height: 6)
+                                                        .shadow(color: Color(hex: portfolio.hexColor).opacity(0.5), radius: 1.5, x: 0, y: 0)
+                                                    
+                                                    Text(portfolio.name)
+                                                        .font(.system(size: 10, weight: .bold))
+                                                        .foregroundColor(.gray)
+                                                        .lineLimit(1)
+                                                }
+                                            }
+                                        }
+                                        .padding(.trailing, 8)
+                                        .padding(.bottom, 4)
                                     }
                                     .frame(height: 130)
                                 }
