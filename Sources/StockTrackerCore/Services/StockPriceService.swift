@@ -29,8 +29,8 @@ public final class StockPriceService: StockPriceServiceProtocol, @unchecked Send
             throw NSError(domain: "StockPriceService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Ticker cannot be empty"])
         }
         
-        // Use Yahoo Finance public chart API
-        let urlString = "https://query1.finance.yahoo.com/v8/finance/chart/\(cleanTicker)"
+        // Use Yahoo Finance public chart API with pre/post-market data enabled
+        let urlString = "https://query1.finance.yahoo.com/v8/finance/chart/\(cleanTicker)?includePrePost=true"
         guard let url = URL(string: urlString) else {
             throw NSError(domain: "StockPriceService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid URL for ticker: \(cleanTicker)"])
         }
@@ -58,7 +58,15 @@ public final class StockPriceService: StockPriceServiceProtocol, @unchecked Send
             throw NSError(domain: "StockPriceService", code: 404, userInfo: [NSLocalizedDescriptionKey: "No data found for \(cleanTicker)"])
         }
         
-        let price = resultItem.meta.regularMarketPrice
+        // Try to get the latest pre/post-market price from indicators, falling back to regularMarketPrice
+        var price = resultItem.meta.regularMarketPrice
+        if let quote = resultItem.indicators?.quote?.first,
+           let closes = quote.close {
+            if let lastClose = closes.last(where: { $0 != nil }), let finalPrice = lastClose {
+                price = finalPrice
+            }
+        }
+        
         let prevClose = resultItem.meta.chartPreviousClose ?? price
         let change24h = prevClose != 0 ? ((price - prevClose) / prevClose) * 100.0 : 0.0
         
@@ -150,7 +158,14 @@ private struct YahooFinanceResult: Codable {
                 let regularMarketPrice: Double
                 let chartPreviousClose: Double?
             }
+            struct Indicators: Codable {
+                struct Quote: Codable {
+                    let close: [Double?]?
+                }
+                let quote: [Quote]?
+            }
             let meta: Meta
+            let indicators: Indicators?
         }
         struct ErrorItem: Codable {
             let code: String
