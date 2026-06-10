@@ -48,10 +48,45 @@ struct PortfolioProvider: TimelineProvider {
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<PortfolioEntry>) -> Void) {
-        let entry = loadCurrentData()
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date()
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
+        Task {
+            await fetchFreshPrices()
+            let entry = loadCurrentData()
+            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 10, to: Date()) ?? Date()
+            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            completion(timeline)
+        }
+    }
+    
+    private func fetchFreshPrices() async {
+        let context = ModelContext(StorageManager.shared.modelContainer)
+        let positionsDescriptor = FetchDescriptor<Position>()
+        let positions = (try? context.fetch(positionsDescriptor)) ?? []
+        
+        let selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
+        let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
+        
+        var tickers = Array(Set(positions.map { $0.ticker }))
+        tickers.append(rateTicker)
+        
+        guard !tickers.isEmpty else { return }
+        
+        let service = StockPriceService()
+        let fetched = await service.fetchPrices(for: tickers)
+        
+        let pricesDescriptor = FetchDescriptor<StockPrice>()
+        let cachedPrices = (try? context.fetch(pricesDescriptor)) ?? []
+        
+        for (ticker, val) in fetched {
+            if let existing = cachedPrices.first(where: { $0.ticker == ticker }) {
+                existing.price = val.price
+                existing.change24h = val.change24h
+                existing.lastUpdated = Date()
+            } else {
+                let newPrice = StockPrice(ticker: ticker, price: val.price, change24h: val.change24h)
+                context.insert(newPrice)
+            }
+        }
+        try? context.save()
     }
     
     private func loadCurrentData() -> PortfolioEntry {

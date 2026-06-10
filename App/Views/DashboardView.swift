@@ -8,6 +8,8 @@ public struct DashboardView: View {
     @Query private var portfolios: [Portfolio]
     @Query private var cachedPrices: [StockPrice]
     
+    private let timer = Timer.publish(every: 600, on: .main, in: .common).autoconnect()
+    
     @State private var showingAddPortfolio = false
     @State private var newPortfolioName = ""
     @State private var newPortfolioColor = "#00F0FF"
@@ -386,6 +388,12 @@ public struct DashboardView: View {
                 Button("Cancel", role: .cancel) {
                     portfolioToRename = nil
                 }
+            }
+            .onAppear {
+                refreshAllPrices()
+            }
+            .onReceive(timer) { _ in
+                refreshAllPrices()
             }
         }
     }
