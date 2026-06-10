@@ -21,8 +21,17 @@ public struct RefreshPricesIntent: AppIntent {
         let selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
         let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
         
-        var tickers = Array(Set(positions.map { $0.ticker }))
-        tickers.append(rateTicker)
+        // Filter out custom assets for standard price fetching
+        var tickersSet = Set(positions.filter { !$0.isCustomAsset }.map { $0.ticker })
+        tickersSet.insert(rateTicker)
+        
+        for position in positions {
+            if position.isCustomAsset, let currency = position.customCurrency, currency.uppercased() != "USD" {
+                tickersSet.insert(AppGroupSettings.shared.getExchangeRateTicker(for: currency))
+            }
+        }
+        
+        let tickers = Array(tickersSet)
         
         if tickers.isEmpty {
             return .result()

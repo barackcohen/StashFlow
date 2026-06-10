@@ -414,10 +414,19 @@ public struct DashboardView: View {
     }
     
     private func refreshAllPrices() {
-        var tickers = Set(portfolios.flatMap { $0.positions.map { $0.ticker } })
+        // Only fetch stock prices for actual stocks/ETFs/cryptos (not custom assets)
+        var tickers = Set(portfolios.flatMap { $0.positions.filter { !$0.isCustomAsset }.map { $0.ticker } })
         
         let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
         tickers.insert(rateTicker)
+        
+        // Also fetch exchange rates for custom assets
+        for position in portfolios.flatMap({ $0.positions }) {
+            if position.isCustomAsset, let currency = position.customCurrency, currency.uppercased() != "USD" {
+                let customRateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: currency)
+                tickers.insert(customRateTicker)
+            }
+        }
         
         guard !tickers.isEmpty else { return }
         

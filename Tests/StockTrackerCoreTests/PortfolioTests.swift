@@ -80,4 +80,40 @@ final class PortfolioTests: XCTestCase {
         // Weighted change = (1500 * 2.0 + 1000 * -1.0) / 2500 = (3000 - 1000) / 2500 = 2000 / 2500 = 0.8%
         XCTAssertEqual(weightedChange, 0.8, accuracy: 0.001)
     }
+    
+    @MainActor
+    func testCustomAssetCalculations() {
+        let portfolio = Portfolio(name: "Mixed")
+        context.insert(portfolio)
+        
+        let aapl = Position(ticker: "AAPL", shares: 10) // Price 150 -> Value 1500 USD
+        let apartment = Position(ticker: "Apartment", shares: 1000000, isCustomAsset: true, customCurrency: "ILS") // 1M ILS. Rate USDILS=X = 4.0 -> Value 250000 USD
+        
+        portfolio.positions.append(aapl)
+        portfolio.positions.append(apartment)
+        
+        let prices = [
+            "AAPL": 150.0,
+            "USDILS=X": 4.0
+        ]
+        
+        let total = calculator.calculateTotal(for: portfolio, prices: prices)
+        XCTAssertEqual(total, 251500.0) // 1500 + 250000
+        
+        let allocations = calculator.calculateAllocations(for: portfolio, prices: prices)
+        XCTAssertEqual(allocations["AAPL"], (1500.0 / 251500.0) * 100.0, accuracy: 0.001)
+        XCTAssertEqual(allocations["Apartment"], (250000.0 / 251500.0) * 100.0, accuracy: 0.001)
+        
+        // 24h change test:
+        // AAPL: 150 USD, change 2% -> Value 1500
+        // Apartment: 250000 USD, change 0% (custom asset) -> Value 250000
+        let prices24h: [String: (price: Double, change24h: Double)] = [
+            "AAPL": (150.0, 2.0),
+            "USDILS=X": (4.0, 1.0)
+        ]
+        
+        let weightedChange = calculator.calculateWeighted24hChange(for: portfolio, prices: prices24h)
+        // (1500 * 2.0 + 250000 * 0.0) / 251500 = 3000 / 251500 = 0.0119%
+        XCTAssertEqual(weightedChange, (3000.0 / 251500.0), accuracy: 0.001)
+    }
 }

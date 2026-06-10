@@ -65,8 +65,18 @@ struct PortfolioProvider: TimelineProvider {
         let selectedCurrency = AppGroupSettings.shared.selectedSecondaryCurrency
         let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: selectedCurrency)
         
-        var tickers = Array(Set(positions.map { $0.ticker }))
-        tickers.append(rateTicker)
+        // Filter out custom assets for standard price fetching
+        var tickersSet = Set(positions.filter { !$0.isCustomAsset }.map { $0.ticker })
+        tickersSet.insert(rateTicker)
+        
+        // Also fetch exchange rates for custom assets
+        for position in positions {
+            if position.isCustomAsset, let currency = position.customCurrency, currency.uppercased() != "USD" {
+                tickersSet.insert(AppGroupSettings.shared.getExchangeRateTicker(for: currency))
+            }
+        }
+        
+        let tickers = Array(tickersSet)
         
         guard !tickers.isEmpty else { return }
         

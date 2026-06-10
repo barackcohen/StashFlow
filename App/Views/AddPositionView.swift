@@ -17,7 +17,11 @@ public struct AddPositionView: View {
     @State private var searchResults: [SymbolSearchResult] = []
     @State private var isSearching = false
     
+    @State private var isCustomAsset = false
+    @State private var customCurrency = "USD"
+    
     private let priceService = StockPriceService()
+    private let currencies = ["USD"] + AppGroupSettings.shared.supportedCurrencies
     
     public init(portfolio: Portfolio, isPresented: Binding<Bool>) {
         self.portfolio = portfolio
@@ -33,17 +37,132 @@ public struct AddPositionView: View {
                     }
                 
                 VStack(spacing: 24) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Ticker Symbol")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .textCase(.uppercase)
+                    Picker("Asset Type", selection: $isCustomAsset) {
+                        Text("Stock / ETF").tag(false)
+                        Text("Custom Asset").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.bottom, 8)
+                    
+                    if !isCustomAsset {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Ticker Symbol")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .textCase(.uppercase)
+                            
+                            ZStack(alignment: .top) {
+                                TextField("e.g. AAPL, TSLA, MSFT", text: $ticker)
+                                    .focused($isTickerFocused)
+                                    .autocorrectionDisabled()
+                                    .textInputAutocapitalization(.characters)
+                                    .padding()
+                                    .background(Color.white.opacity(0.06))
+                                    .cornerRadius(12)
+                                    .foregroundColor(.white)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    )
+                                    .overlay(
+                                        HStack {
+                                            Spacer()
+                                            if isSearching {
+                                                ProgressView()
+                                                    .tint(.white)
+                                                    .padding(.trailing, 16)
+                                            }
+                                        }
+                                    )
+                                
+                                if isTickerFocused && !searchResults.isEmpty {
+                                    ScrollView {
+                                        VStack(alignment: .leading, spacing: 0) {
+                                            ForEach(searchResults) { result in
+                                                Button(action: {
+                                                    ticker = result.symbol
+                                                    searchResults = []
+                                                    isTickerFocused = false
+                                                }) {
+                                                    HStack(spacing: 12) {
+                                                        VStack(alignment: .leading, spacing: 4) {
+                                                            Text(result.symbol)
+                                                                .font(.system(.headline, design: .monospaced))
+                                                                .foregroundColor(.white)
+                                                            
+                                                            if let name = result.longname ?? result.shortname {
+                                                                Text(name)
+                                                                    .font(.caption)
+                                                                    .foregroundColor(.gray)
+                                                                    .lineLimit(1)
+                                                                    .multilineTextAlignment(.leading)
+                                                            }
+                                                        }
+                                                        
+                                                        Spacer()
+                                                        
+                                                        if let exch = result.exchDisp ?? (result.exchange.isEmpty ? nil : result.exchange) {
+                                                            Text(exch)
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .padding(.horizontal, 8)
+                                                                .padding(.vertical, 4)
+                                                                .background(Color.white.opacity(0.1))
+                                                                .cornerRadius(6)
+                                                                .foregroundColor(.gray)
+                                                        }
+                                                        
+                                                        if let type = result.typeDisp {
+                                                            Text(type)
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .padding(.horizontal, 8)
+                                                                .padding(.vertical, 4)
+                                                                .background(
+                                                                    LinearGradient(
+                                                                        colors: [Color(hex: "#00F0FF").opacity(0.15), Color(hex: "#8A2BE2").opacity(0.15)],
+                                                                        startPoint: .leading,
+                                                                        endPoint: .trailing
+                                                                    )
+                                                                )
+                                                                .cornerRadius(6)
+                                                                .foregroundColor(Color(hex: "#00F0FF"))
+                                                        }
+                                                    }
+                                                    .padding(.vertical, 12)
+                                                    .padding(.horizontal, 16)
+                                                    .contentShape(Rectangle())
+                                                }
+                                                
+                                                if result.symbol != searchResults.last?.symbol {
+                                                    Divider()
+                                                        .background(Color.white.opacity(0.1))
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .frame(maxHeight: 220)
+                                    .background(Color(hex: "#121212").opacity(0.95))
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
+                                    .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 10)
+                                    .offset(y: 58)
+                                }
+                            }
+                        }
+                        .zIndex(1)
                         
-                        ZStack(alignment: .top) {
-                            TextField("e.g. AAPL, TSLA, MSFT", text: $ticker)
-                                .focused($isTickerFocused)
-                                .autocorrectionDisabled()
-                                .textInputAutocapitalization(.characters)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Number of Shares")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .textCase(.uppercase)
+                            
+                            TextField(isCrypto ? "e.g. 0.5 or 10" : "e.g. 10", text: $sharesText)
+                                .keyboardType(isCrypto ? .decimalPad : .numberPad)
                                 .padding()
                                 .background(Color.white.opacity(0.06))
                                 .cornerRadius(12)
@@ -52,113 +171,74 @@ public struct AddPositionView: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
-                                .overlay(
-                                    HStack {
-                                        Spacer()
-                                        if isSearching {
-                                            ProgressView()
-                                                .tint(.white)
-                                                .padding(.trailing, 16)
-                                        }
-                                    }
-                                )
+                        }
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Asset Name")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .textCase(.uppercase)
                             
-                            if isTickerFocused && !searchResults.isEmpty {
-                                ScrollView {
-                                    VStack(alignment: .leading, spacing: 0) {
-                                        ForEach(searchResults) { result in
-                                            Button(action: {
-                                                ticker = result.symbol
-                                                searchResults = []
-                                                isTickerFocused = false
-                                            }) {
-                                                HStack(spacing: 12) {
-                                                    VStack(alignment: .leading, spacing: 4) {
-                                                        Text(result.symbol)
-                                                            .font(.system(.headline, design: .monospaced))
-                                                            .foregroundColor(.white)
-                                                        
-                                                        if let name = result.longname ?? result.shortname {
-                                                            Text(name)
-                                                                .font(.caption)
-                                                                .foregroundColor(.gray)
-                                                                .lineLimit(1)
-                                                                .multilineTextAlignment(.leading)
-                                                        }
-                                                    }
-                                                    
-                                                    Spacer()
-                                                    
-                                                    if let exch = result.exchDisp ?? (result.exchange.isEmpty ? nil : result.exchange) {
-                                                        Text(exch)
-                                                            .font(.caption2)
-                                                            .fontWeight(.semibold)
-                                                            .padding(.horizontal, 8)
-                                                            .padding(.vertical, 4)
-                                                            .background(Color.white.opacity(0.1))
-                                                            .cornerRadius(6)
-                                                            .foregroundColor(.gray)
-                                                    }
-                                                    
-                                                    if let type = result.typeDisp {
-                                                        Text(type)
-                                                            .font(.caption2)
-                                                            .fontWeight(.semibold)
-                                                            .padding(.horizontal, 8)
-                                                            .padding(.vertical, 4)
-                                                            .background(
-                                                                LinearGradient(
-                                                                    colors: [Color(hex: "#00F0FF").opacity(0.15), Color(hex: "#8A2BE2").opacity(0.15)],
-                                                                    startPoint: .leading,
-                                                                    endPoint: .trailing
-                                                                )
-                                                            )
-                                                            .cornerRadius(6)
-                                                            .foregroundColor(Color(hex: "#00F0FF"))
-                                                    }
-                                                }
-                                                .padding(.vertical, 12)
-                                                .padding(.horizontal, 16)
-                                                .contentShape(Rectangle())
-                                            }
-                                            
-                                            if result.symbol != searchResults.last?.symbol {
-                                                Divider()
-                                                    .background(Color.white.opacity(0.1))
-                                            }
-                                        }
+                            TextField("e.g. Apartment, Car, Art", text: $ticker)
+                                .padding()
+                                .background(Color.white.opacity(0.06))
+                                .cornerRadius(12)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Currency")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .textCase(.uppercase)
+                            
+                            Menu {
+                                ForEach(currencies, id: \.self) { cur in
+                                    Button(action: {
+                                        customCurrency = cur
+                                    }) {
+                                        Text("\(cur) (\(AppGroupSettings.shared.getSymbol(for: cur)))")
                                     }
                                 }
-                                .frame(maxHeight: 220)
-                                .background(Color(hex: "#121212").opacity(0.95))
+                            } label: {
+                                HStack {
+                                    Text("\(customCurrency) (\(AppGroupSettings.shared.getSymbol(for: customCurrency)))")
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.06))
                                 .cornerRadius(12)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
                                 )
-                                .shadow(color: Color.black.opacity(0.5), radius: 10, x: 0, y: 10)
-                                .offset(y: 58)
                             }
                         }
-                    }
-                    .zIndex(1)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Number of Shares")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .textCase(.uppercase)
                         
-                        TextField(isCrypto ? "e.g. 0.5 or 10" : "e.g. 10", text: $sharesText)
-                            .keyboardType(isCrypto ? .decimalPad : .numberPad)
-                            .padding()
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(12)
-                            .foregroundColor(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Asset Value (\(customCurrency))")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .textCase(.uppercase)
+                            
+                            TextField("e.g. 1000000", text: $sharesText)
+                                .keyboardType(.decimalPad)
+                                .padding()
+                                .background(Color.white.opacity(0.06))
+                                .cornerRadius(12)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                        }
                     }
                     
                     if !errorMessage.isEmpty {
@@ -178,7 +258,14 @@ public struct AddPositionView: View {
                                     .tint(.black)
                                     .padding(.trailing, 8)
                             }
-                            Text(isValidating ? "Validating Ticker..." : "Add Position")
+                            let btnLabel: String = {
+                                if isValidating {
+                                    return isCustomAsset ? (customCurrency == "USD" ? "Saving..." : "Validating Rate...") : "Validating Ticker..."
+                                } else {
+                                    return "Add Position"
+                                }
+                            }()
+                            Text(btnLabel)
                                 .font(.headline)
                         }
                         .foregroundColor(.black)
@@ -202,6 +289,8 @@ public struct AddPositionView: View {
                 }
             }
             .task(id: ticker) {
+                if isCustomAsset { return }
+                
                 let cleanTicker = ticker.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !cleanTicker.isEmpty else {
                     searchResults = []
@@ -237,60 +326,118 @@ public struct AddPositionView: View {
     }
     
     private func validateAndSavePosition() {
-        let cleanTicker = ticker.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !cleanTicker.isEmpty else { return }
-        
-        let cleanSharesText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: ",", with: ".")
-        
-        guard let shares = Double(cleanSharesText), shares > 0 else {
-            errorMessage = isCrypto ? "Please enter a valid positive number of shares." : "Please enter a valid positive integer number of shares."
-            return
-        }
-        
-        if !isCrypto && shares != floor(shares) {
-            errorMessage = "Stocks do not support fractional shares. Please enter an integer."
-            return
-        }
-        
-        isValidating = true
-        errorMessage = ""
-        
-        Task {
-            do {
-                // Query Yahoo Finance chart API to validate the ticker exists and fetch initial price
-                let priceData = try await priceService.fetchPrice(for: cleanTicker)
-                
-                await MainActor.run {
-                    // Update cache price model
-                    if let existingCache = cachedPrices.first(where: { $0.ticker == cleanTicker }) {
-                        existingCache.price = priceData.price
-                        existingCache.change24h = priceData.change24h
-                        existingCache.lastUpdated = Date()
-                    } else {
-                        let newCache = StockPrice(ticker: cleanTicker, price: priceData.price, change24h: priceData.change24h)
-                        modelContext.insert(newCache)
+        if isCustomAsset {
+            let cleanName = ticker.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cleanName.isEmpty else {
+                errorMessage = "Please enter an asset name."
+                return
+            }
+            
+            let cleanValueText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: ",", with: ".")
+            
+            guard let value = Double(cleanValueText), value > 0 else {
+                errorMessage = "Please enter a valid positive value."
+                return
+            }
+            
+            isValidating = true
+            errorMessage = ""
+            
+            let currency = customCurrency.uppercased()
+            if currency == "USD" {
+                saveCustomPosition(name: cleanName, value: value, currency: currency)
+            } else {
+                let rateTicker = AppGroupSettings.shared.getExchangeRateTicker(for: currency)
+                Task {
+                    do {
+                        let priceData = try await priceService.fetchPrice(for: rateTicker)
+                        await MainActor.run {
+                            if let existingCache = cachedPrices.first(where: { $0.ticker == rateTicker }) {
+                                existingCache.price = priceData.price
+                                existingCache.change24h = priceData.change24h
+                                existingCache.lastUpdated = Date()
+                            } else {
+                                let newCache = StockPrice(ticker: rateTicker, price: priceData.price, change24h: priceData.change24h)
+                                modelContext.insert(newCache)
+                            }
+                            saveCustomPosition(name: cleanName, value: value, currency: currency)
+                        }
+                    } catch {
+                        await MainActor.run {
+                            isValidating = false
+                            errorMessage = "Failed to validate currency exchange rate for \(currency)."
+                        }
                     }
-                    
-                    // If position already exists, add to shares
-                    if let existingPos = portfolio.positions.first(where: { $0.ticker == cleanTicker }) {
-                        existingPos.shares += shares
-                    } else {
-                        let newPosition = Position(ticker: cleanTicker, shares: shares)
-                        modelContext.insert(newPosition)
-                        portfolio.positions.append(newPosition)
-                    }
-                    
-                    try? modelContext.save()
-                    isValidating = false
-                    isPresented = false
                 }
-            } catch {
-                await MainActor.run {
-                    isValidating = false
-                    errorMessage = "Failed to validate ticker. Check symbol and network connection."
+            }
+        } else {
+            let cleanTicker = ticker.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cleanTicker.isEmpty else { return }
+            
+            let cleanSharesText = sharesText.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: ",", with: ".")
+            
+            guard let shares = Double(cleanSharesText), shares > 0 else {
+                errorMessage = isCrypto ? "Please enter a valid positive number of shares." : "Please enter a valid positive integer number of shares."
+                return
+            }
+            
+            if !isCrypto && shares != floor(shares) {
+                errorMessage = "Stocks do not support fractional shares. Please enter an integer."
+                return
+            }
+            
+            isValidating = true
+            errorMessage = ""
+            
+            Task {
+                do {
+                    let priceData = try await priceService.fetchPrice(for: cleanTicker)
+                    
+                    await MainActor.run {
+                        if let existingCache = cachedPrices.first(where: { $0.ticker == cleanTicker }) {
+                            existingCache.price = priceData.price
+                            existingCache.change24h = priceData.change24h
+                            existingCache.lastUpdated = Date()
+                        } else {
+                            let newCache = StockPrice(ticker: cleanTicker, price: priceData.price, change24h: priceData.change24h)
+                            modelContext.insert(newCache)
+                        }
+                        
+                        if let existingPos = portfolio.positions.first(where: { $0.ticker == cleanTicker && !$0.isCustomAsset }) {
+                            existingPos.shares += shares
+                        } else {
+                            let newPosition = Position(ticker: cleanTicker, shares: shares)
+                            modelContext.insert(newPosition)
+                            portfolio.positions.append(newPosition)
+                        }
+                        
+                        try? modelContext.save()
+                        isValidating = false
+                        isPresented = false
+                    }
+                } catch {
+                    await MainActor.run {
+                        isValidating = false
+                        errorMessage = "Failed to validate ticker. Check symbol and network connection."
+                    }
                 }
             }
         }
+    }
+    
+    private func saveCustomPosition(name: String, value: Double, currency: String) {
+        if let existingPos = portfolio.positions.first(where: { $0.ticker.uppercased() == name.uppercased() && $0.isCustomAsset && $0.customCurrency == currency }) {
+            existingPos.shares += value
+        } else {
+            let newPosition = Position(ticker: name, shares: value, isCustomAsset: true, customCurrency: currency)
+            modelContext.insert(newPosition)
+            portfolio.positions.append(newPosition)
+        }
+        
+        try? modelContext.save()
+        isValidating = false
+        isPresented = false
     }
 }

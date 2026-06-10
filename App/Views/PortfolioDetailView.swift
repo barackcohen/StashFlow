@@ -41,8 +41,8 @@ public struct PortfolioDetailView: View {
     
     private var sortedPositions: [Position] {
         portfolio.positions.sorted { p1, p2 in
-            let val1 = Double(p1.shares) * (priceMap[p1.ticker] ?? 0.0)
-            let val2 = Double(p2.shares) * (priceMap[p2.ticker] ?? 0.0)
+            let val1 = calculator.calculatePositionValue(p1, prices: priceMap)
+            let val2 = calculator.calculatePositionValue(p2, prices: priceMap)
             return val1 > val2
         }
     }
@@ -55,11 +55,10 @@ public struct PortfolioDetailView: View {
     
     private var chartItems: [ChartItem] {
         let rawItems = sortedPositions.map { p in
-            let price = priceMap[p.ticker] ?? 0.0
             return ChartItem(
                 id: p.ticker,
                 ticker: p.ticker,
-                value: Double(p.shares) * price
+                value: calculator.calculatePositionValue(p, prices: priceMap)
             )
         }
         
@@ -254,17 +253,21 @@ public struct PortfolioDetailView: View {
                             VStack(spacing: 12) {
                                 ForEach(sortedPositions) { position in
                                     let price = priceMap[position.ticker] ?? 0.0
-                                    let change = priceInfoMap[position.ticker]?.change24h ?? 0.0
-                                    let totalVal = Double(position.shares) * price
+                                    let change = position.isCustomAsset ? 0.0 : (priceInfoMap[position.ticker]?.change24h ?? 0.0)
+                                    let totalVal = calculator.calculatePositionValue(position, prices: priceMap)
                                     let secondaryVal = totalVal * getExchangeRate()
                                     
                                     PositionRow(
                                         ticker: position.ticker,
-                                        sharesText: "\(formatShares(position.shares, ticker: position.ticker)) shares",
+                                        sharesText: position.isCustomAsset 
+                                            ? "Flat Value (\(position.customCurrency ?? "USD"))"
+                                            : "\(formatShares(position.shares, ticker: position.ticker)) shares",
                                         valueUSDText: formatCurrency(totalVal, code: "USD"),
                                         valueSecondaryText: formatCurrency(secondaryVal, code: selectedCurrency),
-                                        priceText: formatCurrency(price, code: "USD"),
-                                        changeText: String(format: "(%.1f%%)", change),
+                                        priceText: position.isCustomAsset 
+                                            ? formatCurrency(position.shares, code: position.customCurrency ?? "USD")
+                                            : formatCurrency(price, code: "USD"),
+                                        changeText: position.isCustomAsset ? "" : String(format: "(%.1f%%)", change),
                                         isChangePositive: change >= 0,
                                         hexColor: portfolio.hexColor,
                                         onEdit: {
@@ -373,7 +376,7 @@ struct EditPositionSheet: View {
     @Environment(\.dismiss) private var dismiss
     
     private var isCrypto: Bool {
-        position.ticker.uppercased().contains("-USD") || position.ticker.uppercased().contains("=X")
+        position.isCustomAsset || position.ticker.uppercased().contains("-USD") || position.ticker.uppercased().contains("=X")
     }
     
     private var parsedShares: Double? {
@@ -398,11 +401,11 @@ struct EditPositionSheet: View {
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Edit shares for \(position.ticker)")
+                        Text(position.isCustomAsset ? "Edit value for \(position.ticker)" : "Edit shares for \(position.ticker)")
                             .font(.headline)
                             .foregroundColor(.white)
                         
-                        TextField("Number of shares", text: $sharesText)
+                        TextField(position.isCustomAsset ? "Asset value" : "Number of shares", text: $sharesText)
                             .keyboardType(isCrypto ? .decimalPad : .numberPad)
                             .padding()
                             .background(Color.white.opacity(0.06))
@@ -414,7 +417,7 @@ struct EditPositionSheet: View {
                             )
                         
                         if parsedShares == nil && !sharesText.isEmpty {
-                            Text(isCrypto ? "Please enter a valid number of shares." : "Please enter a valid integer number of shares.")
+                            Text(position.isCustomAsset ? "Please enter a valid asset value." : (isCrypto ? "Please enter a valid number of shares." : "Please enter a valid integer number of shares."))
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
