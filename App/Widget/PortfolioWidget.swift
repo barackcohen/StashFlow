@@ -10,6 +10,7 @@ struct WidgetPortfolioItem: Identifiable {
     let value: Double
     let change24h: Double
     let hexColor: String
+    let isAllCustom: Bool
 }
 
 struct PortfolioEntry: TimelineEntry {
@@ -34,8 +35,8 @@ struct PortfolioProvider: TimelineProvider {
             dayChangePercent: 1.48,
             lastUpdated: Date(),
             portfolios: [
-                WidgetPortfolioItem(id: UUID(), name: "Tech Portfolio", value: 84200.0, change24h: 1.34, hexColor: "#00F0FF"),
-                WidgetPortfolioItem(id: UUID(), name: "Speculative", value: 40380.20, change24h: 1.81, hexColor: "#8A2BE2")
+                WidgetPortfolioItem(id: UUID(), name: "Tech Portfolio", value: 84200.0, change24h: 1.34, hexColor: "#00F0FF", isAllCustom: false),
+                WidgetPortfolioItem(id: UUID(), name: "Speculative", value: 40380.20, change24h: 1.81, hexColor: "#8A2BE2", isAllCustom: false)
             ],
             secondaryCurrency: "EUR",
             exchangeRate: 0.92
@@ -129,7 +130,8 @@ struct PortfolioProvider: TimelineProvider {
                 name: portfolio.name,
                 value: pTotal,
                 change24h: pChange,
-                hexColor: portfolio.hexColor
+                hexColor: portfolio.hexColor,
+                isAllCustom: portfolio.positions.allSatisfy { $0.isCustomAsset }
             ))
         }
         
@@ -342,10 +344,12 @@ struct PortfolioWidgetEntryView: View {
                                     
                                     Spacer()
                                     
-                                    Text(String(format: "%@%.2f%%", item.change24h >= 0 ? "+" : "", item.change24h))
-                                        .font(.system(size: nameFontSize - 1, weight: .bold))
-                                        .foregroundColor(item.change24h >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
-                                        .fixedSize(horizontal: true, vertical: false)
+                                    if !item.isAllCustom {
+                                        Text(String(format: "%@%.2f%%", item.change24h >= 0 ? "+" : "", item.change24h))
+                                            .font(.system(size: nameFontSize - 1, weight: .bold))
+                                            .foregroundColor(item.change24h >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
+                                            .fixedSize(horizontal: true, vertical: false)
+                                    }
                                 }
                                 
                                 HStack(spacing: 4) {

@@ -320,12 +320,14 @@ public struct DashboardView: View {
                                                         .font(.caption)
                                                         .foregroundColor(.white.opacity(0.6))
                                                     
-                                                    HStack(spacing: 2) {
-                                                        Image(systemName: pctChange >= 0 ? "arrow.up" : "arrow.down")
-                                                        Text(String(format: "%.2f%%", pctChange))
+                                                    if !portfolio.positions.allSatisfy({ $0.isCustomAsset }) {
+                                                        HStack(spacing: 2) {
+                                                            Image(systemName: pctChange >= 0 ? "arrow.up" : "arrow.down")
+                                                            Text(String(format: "%.2f%%", pctChange))
+                                                        }
+                                                        .font(.system(size: 10))
+                                                        .foregroundColor(pctChange >= 0 ? .green : .red)
                                                     }
-                                                    .font(.system(size: 10))
-                                                    .foregroundColor(pctChange >= 0 ? .green : .red)
                                                 }
                                                 
                                                 Image(systemName: "chevron.right")
