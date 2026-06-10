@@ -160,14 +160,16 @@ public struct PortfolioDetailView: View {
                                     .foregroundColor(.white.opacity(0.6))
                             }
                             
-                            let change = calculator.calculateWeighted24hChange(for: portfolio, prices: priceInfoMap)
-                            HStack(spacing: 4) {
-                                Image(systemName: change >= 0 ? "arrow.up" : "arrow.down")
-                                Text(String(format: "%.2f%% (24h)", change))
+                            if !portfolio.positions.allSatisfy({ $0.isCustomAsset }) {
+                                let change = calculator.calculateWeighted24hChange(for: portfolio, prices: priceInfoMap)
+                                HStack(spacing: 4) {
+                                    Image(systemName: change >= 0 ? "arrow.up" : "arrow.down")
+                                    Text(String(format: "%.2f%% (24h)", change))
+                                }
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(change >= 0 ? .green : .red)
                             }
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(change >= 0 ? .green : .red)
                         }
                         .frame(maxWidth: .infinity)
                     }
