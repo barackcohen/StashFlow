@@ -125,6 +125,14 @@ public struct PortfolioDetailView: View {
         return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0.00"
     }
     
+    private func formatCurrencyNoCents(_ value: Double, code: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = AppGroupSettings.shared.getSymbol(for: code)
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0"
+    }
+    
     public init(portfolio: Portfolio) {
         self.portfolio = portfolio
     }
@@ -143,12 +151,12 @@ public struct PortfolioDetailView: View {
                                 .foregroundColor(.white)
                             
                             VStack(spacing: 4) {
-                                Text(formatCurrency(portfolioTotal, code: "USD"))
+                                Text(formatCurrencyNoCents(portfolioTotal, code: "USD"))
                                     .font(.system(size: 34, weight: .bold, design: .monospaced))
                                     .foregroundColor(.white)
                                 
                                 let secondaryTotal = portfolioTotal * getExchangeRate()
-                                Text(formatCurrency(secondaryTotal, code: selectedCurrency))
+                                Text(formatCurrencyNoCents(secondaryTotal, code: selectedCurrency))
                                     .font(.system(size: 18, weight: .semibold, design: .monospaced))
                                     .foregroundColor(.gray)
                             }

@@ -180,7 +180,7 @@ struct PortfolioWidgetEntryView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Total Balance")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
                 Spacer()
                 
@@ -199,35 +199,31 @@ struct PortfolioWidgetEntryView: View {
             
             VStack(alignment: .leading, spacing: 1) {
                 Text(formatCurrency(entry.totalValue, code: "USD"))
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .minimumScaleFactor(0.7)
                 
                 let secondaryVal = entry.totalValue * entry.exchangeRate
                 Text(formatCurrency(secondaryVal, code: entry.secondaryCurrency))
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.6))
                     .minimumScaleFactor(0.7)
             }
             
             Spacer()
             
-            HStack(spacing: 3) {
-                Image(systemName: entry.dayChangePercent >= 0 ? "arrow.up.right" : "arrow.down.left")
-                    .font(.system(size: 9, weight: .bold))
-                Text(String(format: "%.2f%%", entry.dayChangePercent))
-                    .font(.system(size: 11, weight: .bold))
-            }
-            .foregroundColor(entry.dayChangePercent >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background((entry.dayChangePercent >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30")).opacity(0.12))
-            .clipShape(Capsule())
+            Text(String(format: "%@%.2f%%", entry.dayChangePercent >= 0 ? "+" : "", entry.dayChangePercent))
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(entry.dayChangePercent >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                .cornerRadius(4)
             
             Spacer()
             
             Text("Updated: \(entry.lastUpdated, style: .time)")
-                .font(.system(size: 8, weight: .medium))
+                .font(.system(size: 8, weight: .medium, design: .monospaced))
                 .foregroundColor(.white.opacity(0.3))
         }
         .padding(12)
@@ -247,33 +243,29 @@ struct PortfolioWidgetEntryView: View {
             // Left Column (Total Balance summary)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Total Balance")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
                 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(formatCurrency(entry.totalValue, code: "USD"))
-                        .font(.system(size: 25, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                         .minimumScaleFactor(0.7)
                     
                     let secondaryVal = entry.totalValue * entry.exchangeRate
                     Text(formatCurrency(secondaryVal, code: entry.secondaryCurrency))
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
                         .foregroundColor(.white.opacity(0.6))
                         .minimumScaleFactor(0.7)
                 }
                 
-                HStack(spacing: 3) {
-                    Image(systemName: entry.dayChangePercent >= 0 ? "arrow.up.right" : "arrow.down.left")
-                        .font(.system(size: 9, weight: .bold))
-                    Text(String(format: "%.2f%%", entry.dayChangePercent))
-                        .font(.system(size: 11, weight: .bold))
-                }
-                .foregroundColor(entry.dayChangePercent >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background((entry.dayChangePercent >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30")).opacity(0.12))
-                .clipShape(Capsule())
+                Text(String(format: "%@%.2f%%", entry.dayChangePercent >= 0 ? "+" : "", entry.dayChangePercent))
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(entry.dayChangePercent >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                    .cornerRadius(4)
                 
                 Spacer(minLength: 0)
                 
@@ -283,18 +275,18 @@ struct PortfolioWidgetEntryView: View {
                             Image(systemName: "arrow.clockwise")
                                 .font(.system(size: 8, weight: .bold))
                             Text("Refresh")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.system(size: 8, weight: .bold, design: .monospaced))
                         }
                         .foregroundColor(.white.opacity(0.8))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.white.opacity(0.08))
-                        .clipShape(Capsule())
+                        .cornerRadius(4)
                     }
                     .buttonStyle(.plain)
                     
                     Text("\(entry.lastUpdated, style: .time)")
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.system(size: 8, weight: .medium, design: .monospaced))
                         .foregroundColor(.white.opacity(0.3))
                 }
             }
@@ -306,12 +298,12 @@ struct PortfolioWidgetEntryView: View {
             // Right Column (Top Portfolios)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Portfolios")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
                     .foregroundColor(.white.opacity(0.4))
                 
                 if entry.portfolios.isEmpty {
                     Text("No portfolios yet.")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 12, weight: .medium, design: .monospaced))
                         .foregroundColor(.white.opacity(0.3))
                         .frame(maxHeight: .infinity)
                 } else {
@@ -319,13 +311,12 @@ struct PortfolioWidgetEntryView: View {
                         ForEach(entry.portfolios.prefix(limit)) { item in
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 6) {
-                                    Circle()
+                                    RoundedRectangle(cornerRadius: 1)
                                         .fill(Color(hex: item.hexColor))
-                                        .frame(width: dotSize, height: dotSize)
-                                        .shadow(color: Color(hex: item.hexColor).opacity(0.7), radius: 3, x: 0, y: 0)
+                                        .frame(width: 3, height: 18)
                                     
                                     Text(item.name)
-                                        .font(.system(size: nameFontSize, weight: .bold))
+                                        .font(.system(size: nameFontSize, weight: .bold, design: .default))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
                                         .layoutPriority(1)
@@ -333,17 +324,21 @@ struct PortfolioWidgetEntryView: View {
                                     Spacer()
                                     
                                     Text(String(format: "%@%.2f%%", item.change24h >= 0 ? "+" : "", item.change24h))
-                                        .font(.system(size: nameFontSize - 1, weight: .bold))
-                                        .foregroundColor(item.change24h >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
+                                        .font(.system(size: nameFontSize - 1, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 3)
+                                        .background(item.change24h >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                                        .cornerRadius(3)
                                         .fixedSize(horizontal: true, vertical: false)
                                 }
                                 
                                 HStack(spacing: 4) {
                                     Spacer()
-                                        .frame(width: indentSize)
+                                        .frame(width: indentSize - 4)
                                     
                                     Text(formatCurrency(item.value, code: "USD"))
-                                        .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
+                                        .font(.system(size: valueFontSize, weight: .bold, design: .monospaced))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.75)
@@ -354,7 +349,7 @@ struct PortfolioWidgetEntryView: View {
                                     
                                     let secondaryVal = item.value * entry.exchangeRate
                                     Text(formatCurrency(secondaryVal, code: entry.secondaryCurrency))
-                                        .font(.system(size: valueFontSize, weight: .semibold, design: .rounded))
+                                        .font(.system(size: valueFontSize, weight: .semibold, design: .monospaced))
                                         .foregroundColor(.white.opacity(0.5))
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.75)
@@ -390,24 +385,7 @@ struct PortfolioWidget: Widget {
         StaticConfiguration(kind: kind, provider: PortfolioProvider()) { entry in
             PortfolioWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
-                    ZStack {
-                        Color(hex: "#090518")
-                        
-                        // Subtle glowing radial highlights for a premium, high-tech dashboard look
-                        RadialGradient(
-                            colors: [Color(hex: "#8A2BE2").opacity(0.35), Color.clear],
-                            center: .bottomTrailing,
-                            startRadius: 0,
-                            endRadius: 130
-                        )
-                        
-                        RadialGradient(
-                            colors: [Color(hex: "#00F0FF").opacity(0.18), Color.clear],
-                            center: .topLeading,
-                            startRadius: 0,
-                            endRadius: 100
-                        )
-                    }
+                    Color.black
                 }
         }
         .configurationDisplayName("Portfolio Tracker")

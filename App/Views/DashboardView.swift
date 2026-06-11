@@ -49,6 +49,14 @@ public struct DashboardView: View {
         return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0.00"
     }
     
+    private func formatCurrencyNoCents(_ value: Double, code: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = AppGroupSettings.shared.getSymbol(for: code)
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? "\(AppGroupSettings.shared.getSymbol(for: code))0"
+    }
+    
     private var priceMap: [String: Double] {
         var map: [String: Double] = [:]
         for price in cachedPrices {
@@ -163,13 +171,13 @@ public struct DashboardView: View {
                                     .foregroundColor(.gray)
                                 
                                 VStack(spacing: 4) {
-                                    Text(formatCurrency(grandTotal, code: "USD"))
+                                    Text(formatCurrencyNoCents(grandTotal, code: "USD"))
                                         .font(.system(size: 38, weight: .bold, design: .monospaced))
                                         .foregroundColor(.white)
                                         .minimumScaleFactor(0.7)
                                     
                                     let secondaryTotal = grandTotal * getExchangeRate()
-                                    Text(formatCurrency(secondaryTotal, code: selectedCurrency))
+                                    Text(formatCurrencyNoCents(secondaryTotal, code: selectedCurrency))
                                         .font(.system(size: 18, weight: .semibold, design: .monospaced))
                                         .foregroundColor(.gray)
                                 }
@@ -301,13 +309,13 @@ public struct DashboardView: View {
                                                 Spacer()
                                                 
                                                 VStack(alignment: .trailing, spacing: 2) {
-                                                    Text(formatCurrency(total, code: "USD"))
+                                                    Text(formatCurrencyNoCents(total, code: "USD"))
                                                         .font(.system(.body, design: .monospaced))
                                                         .fontWeight(.bold)
                                                         .foregroundColor(.white)
                                                     
                                                     let secondaryVal = total * getExchangeRate()
-                                                    Text(formatCurrency(secondaryVal, code: selectedCurrency))
+                                                    Text(formatCurrencyNoCents(secondaryVal, code: selectedCurrency))
                                                         .font(.system(.caption, design: .monospaced))
                                                         .foregroundColor(.gray)
                                                 }
