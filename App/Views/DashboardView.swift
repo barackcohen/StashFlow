@@ -339,9 +339,8 @@ public struct DashboardView: View {
                                                 Text(String(format: "%@%.2f%%", pctChange >= 0 ? "+" : "", pctChange))
                                                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                                                     .foregroundColor(.white)
-                                                    .padding(.horizontal, 8)
                                                     .padding(.vertical, 6)
-                                                    .frame(width: 82, alignment: .trailing)
+                                                    .frame(width: 72, alignment: .center)
                                                     .background(pctChange >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
                                                     .cornerRadius(4)
                                                 
