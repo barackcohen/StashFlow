@@ -20,6 +20,7 @@ public struct DashboardView: View {
     @State private var tempName = ""
     @State private var portfolioToRename: Portfolio? = nil
     @State private var renameText = ""
+    @State private var isAllocationExpanded = true
     
     private let calculator = PortfolioCalculator()
     private let priceService = StockPriceService()
@@ -200,59 +201,7 @@ public struct DashboardView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Allocation Sector Chart
-                        if grandTotal > 0 {
-                            GlassmorphicCard {
-                                VStack(alignment: .leading, spacing: 16) {
-                                    Text("Portfolio Allocation")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                    
-                                    ZStack(alignment: .bottomTrailing) {
-                                        // Center: The donut chart diagram
-                                        HStack {
-                                            Spacer()
-                                            Chart {
-                                                ForEach(portfolios) { portfolio in
-                                                    let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
-                                                    SectorMark(
-                                                        angle: .value("Value", val),
-                                                        innerRadius: .ratio(0.7),
-                                                        angularInset: 1.5
-                                                    )
-                                                    .foregroundStyle(Color(hex: portfolio.hexColor))
-                                                }
-                                            }
-                                            .frame(width: 130, height: 130)
-                                            Spacer()
-                                        }
-                                        .frame(maxWidth: .infinity)
-                                        
-                                        // Bottom Right: The legend (names only, even smaller text)
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            ForEach(portfolios) { portfolio in
-                                                HStack(spacing: 6) {
-                                                    Circle()
-                                                        .fill(Color(hex: portfolio.hexColor))
-                                                        .frame(width: 6, height: 6)
-                                                        .shadow(color: Color(hex: portfolio.hexColor).opacity(0.5), radius: 1.5, x: 0, y: 0)
-                                                    
-                                                    Text(portfolio.name)
-                                                        .font(.system(size: 10, weight: .bold))
-                                                        .foregroundColor(.gray)
-                                                        .lineLimit(1)
-                                                }
-                                            }
-                                        }
-                                        .padding(.trailing, 8)
-                                        .padding(.bottom, 4)
-                                    }
-                                    .frame(height: 130)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
+
                         // Portfolio Section list
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
@@ -361,6 +310,74 @@ public struct DashboardView: View {
                                 }
                                 .padding(.horizontal)
                             }
+                        }
+                        
+                        // Allocation Sector Chart
+                        if grandTotal > 0 {
+                            GlassmorphicCard {
+                                VStack(alignment: .leading, spacing: 16) {
+                                    HStack {
+                                        Text("Portfolio Allocation")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        Image(systemName: isAllocationExpanded ? "chevron.down" : "chevron.right")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            isAllocationExpanded.toggle()
+                                        }
+                                    }
+                                    
+                                    if isAllocationExpanded {
+                                        ZStack(alignment: .bottomTrailing) {
+                                            // Center: The donut chart diagram
+                                            HStack {
+                                                Spacer()
+                                                Chart {
+                                                    ForEach(portfolios) { portfolio in
+                                                        let val = calculator.calculateTotal(for: portfolio, prices: priceMap)
+                                                        SectorMark(
+                                                            angle: .value("Value", val),
+                                                            innerRadius: .ratio(0.7),
+                                                            angularInset: 1.5
+                                                        )
+                                                        .foregroundStyle(Color(hex: portfolio.hexColor))
+                                                    }
+                                                }
+                                                .frame(width: 130, height: 130)
+                                                Spacer()
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            
+                                            // Bottom Right: The legend (names only, even smaller text)
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                ForEach(portfolios) { portfolio in
+                                                    HStack(spacing: 6) {
+                                                        Circle()
+                                                            .fill(Color(hex: portfolio.hexColor))
+                                                            .frame(width: 6, height: 6)
+                                                            .shadow(color: Color(hex: portfolio.hexColor).opacity(0.5), radius: 1.5, x: 0, y: 0)
+                                                        
+                                                        Text(portfolio.name)
+                                                            .font(.system(size: 10, weight: .bold))
+                                                            .foregroundColor(.gray)
+                                                            .lineLimit(1)
+                                                    }
+                                                }
+                                            }
+                                            .padding(.trailing, 8)
+                                            .padding(.bottom, 4)
+                                        }
+                                        .frame(height: 130)
+                                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
                         }
                     }
                     .padding(.vertical)
