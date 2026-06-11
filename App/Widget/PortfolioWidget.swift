@@ -358,6 +358,7 @@ struct PortfolioWidgetEntryView: View {
                                         .minimumScaleFactor(0.75)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     Spacer(minLength: 0)
