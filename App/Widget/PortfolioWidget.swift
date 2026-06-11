@@ -239,7 +239,7 @@ struct PortfolioWidgetEntryView: View {
         let dotSize: CGFloat = limit > 3 ? 6 : 8
         let indentSize: CGFloat = dotSize + 6
 
-        return HStack(spacing: 16) {
+        return HStack(spacing: 12) {
             // Left Column (Total Balance summary)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Total Balance")
@@ -290,7 +290,7 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                 }
             }
-            .frame(width: 108, alignment: .leading)
+            .frame(width: 92, alignment: .leading)
             
             Divider()
                 .background(Color.white.opacity(0.08))
