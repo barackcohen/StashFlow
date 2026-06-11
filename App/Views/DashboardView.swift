@@ -340,7 +340,7 @@ public struct DashboardView: View {
                                                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                                                     .foregroundColor(.white)
                                                     .padding(.vertical, 6)
-                                                    .frame(width: 72, alignment: .center)
+                                                    .frame(width: 60, alignment: .center)
                                                     .background(pctChange >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
                                                     .cornerRadius(4)
                                                 
