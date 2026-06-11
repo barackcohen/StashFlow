@@ -392,6 +392,7 @@ struct PortfolioWidget: Widget {
                     Color(hex: "#232835")
                 }
         }
+        .contentMarginsDisabled()
         .configurationDisplayName("Portfolio Tracker")
         .description("Track your total investments at a glance.")
         .supportedFamilies([.systemSmall, .systemMedium])
