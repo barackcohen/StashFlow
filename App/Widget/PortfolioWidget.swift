@@ -335,6 +335,7 @@ struct PortfolioWidgetEntryView: View {
                                     Text(String(format: "%@%.2f%%", item.change24h >= 0 ? "+" : "", item.change24h))
                                         .font(.system(size: nameFontSize - 1, weight: .bold))
                                         .foregroundColor(item.change24h >= 0 ? Color(hex: "#00FF87") : Color(hex: "#FF3B30"))
+                                        .fixedSize(horizontal: true, vertical: false)
                                 }
                                 
                                 HStack(spacing: 4) {
