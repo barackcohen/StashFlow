@@ -159,6 +159,7 @@ struct PortfolioProvider: TimelineProvider {
 struct PortfolioWidgetEntryView: View {
     var entry: PortfolioProvider.Entry
     @Environment(\.widgetFamily) var family
+    @Environment(\.widgetRenderingMode) var renderingMode
     
     var body: some View {
         Group {
@@ -174,14 +175,47 @@ struct PortfolioWidgetEntryView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
+    // MARK: - Badge Helper
+    
+    @ViewBuilder
+    private func badgeView(change: Double, fontSize: CGFloat = 11) -> some View {
+        let text = String(format: "%@%.2f%%", change >= 0 ? "+" : "", change)
+        let isPositive = change >= 0
+        let hPadding: CGFloat = fontSize <= 10 ? 6 : 8
+        let vPadding: CGFloat = fontSize <= 10 ? 3 : 4
+        let cornerRadius: CGFloat = fontSize <= 10 ? 3 : 4
+        
+        if renderingMode == .fullColor {
+            Text(text)
+                .font(.system(size: fontSize, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .padding(.horizontal, hPadding)
+                .padding(.vertical, vPadding)
+                .background(isPositive ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                .cornerRadius(cornerRadius)
+        } else {
+            // Accented/tinted or vibrant mode:
+            // Use transparent/dark capsule with colored border and colored text.
+            // When desaturated, this will map perfectly to a high-contrast layout.
+            Text(text)
+                .font(.system(size: fontSize, weight: .bold, design: .monospaced))
+                .foregroundColor(isPositive ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                .padding(.horizontal, hPadding)
+                .padding(.vertical, vPadding)
+                .background(Color.black.opacity(0.6))
+                .cornerRadius(cornerRadius)
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(isPositive ? Color(hex: "#30D158") : Color(hex: "#FF453A"), lineWidth: 1)
+                )
+        }
+    }
+    
     // MARK: - Small Layout
     
     private var smallLayout: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Total Balance")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
                 Spacer()
                 
                 Button(intent: RefreshPricesIntent()) {
@@ -212,13 +246,7 @@ struct PortfolioWidgetEntryView: View {
             
             Spacer()
             
-            Text(String(format: "%@%.2f%%", entry.dayChangePercent >= 0 ? "+" : "", entry.dayChangePercent))
-                .font(.system(size: 11, weight: .bold, design: .monospaced))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(entry.dayChangePercent >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
-                .cornerRadius(4)
+            badgeView(change: entry.dayChangePercent)
             
             Spacer()
             
@@ -241,11 +269,7 @@ struct PortfolioWidgetEntryView: View {
 
         return HStack(spacing: 12) {
             // Left Column (Total Balance summary)
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Total Balance")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
-                
+            VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(formatCurrency(entry.totalValue, code: "USD"))
                         .font(.system(size: 24, weight: .bold, design: .monospaced))
@@ -259,29 +283,18 @@ struct PortfolioWidgetEntryView: View {
                         .minimumScaleFactor(0.7)
                 }
                 
-                Text(String(format: "%@%.2f%%", entry.dayChangePercent >= 0 ? "+" : "", entry.dayChangePercent))
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(entry.dayChangePercent >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
-                    .cornerRadius(4)
+                badgeView(change: entry.dayChangePercent)
                 
                 Spacer(minLength: 0)
                 
                 HStack(spacing: 6) {
                     Button(intent: RefreshPricesIntent()) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.system(size: 8, weight: .bold))
-                            Text("Refresh")
-                                .font(.system(size: 8, weight: .bold, design: .monospaced))
-                        }
-                        .foregroundColor(.white.opacity(0.8))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.08))
-                        .cornerRadius(4)
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(6)
+                            .background(Color.white.opacity(0.08))
+                            .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
                     
@@ -296,11 +309,7 @@ struct PortfolioWidgetEntryView: View {
                 .background(Color.white.opacity(0.08))
             
             // Right Column (Top Portfolios)
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Portfolios")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.4))
-                
+            VStack(alignment: .leading, spacing: 0) {
                 if entry.portfolios.isEmpty {
                     Text("No portfolios yet.")
                         .font(.system(size: 12, weight: .medium, design: .monospaced))
@@ -323,13 +332,7 @@ struct PortfolioWidgetEntryView: View {
                                     
                                     Spacer()
                                     
-                                    Text(String(format: "%@%.2f%%", item.change24h >= 0 ? "+" : "", item.change24h))
-                                        .font(.system(size: nameFontSize - 1, weight: .bold, design: .monospaced))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 3)
-                                        .background(item.change24h >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
-                                        .cornerRadius(3)
+                                    badgeView(change: item.change24h, fontSize: nameFontSize - 1)
                                         .fixedSize(horizontal: true, vertical: false)
                                 }
                                 
