@@ -266,11 +266,13 @@ struct PortfolioWidgetEntryView: View {
         let valueFontSize: CGFloat = limit > 3 ? 9 : (limit > 2 ? 10 : 11)
         let dotSize: CGFloat = limit > 3 ? 6 : 8
         let indentSize: CGFloat = dotSize + 6
-        let gap: CGFloat = 14
+        let gap: CGFloat = 16
 
         return HStack(spacing: gap) {
             // Left Column (Total Balance summary)
             VStack(alignment: .leading, spacing: 8) {
+                Spacer(minLength: 0)
+                
                 VStack(alignment: .leading, spacing: 1) {
                     Text(formatCurrency(entry.totalValue, code: "USD"))
                         .font(.system(size: 24, weight: .bold, design: .monospaced))
@@ -316,6 +318,8 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                         .frame(maxHeight: .infinity)
                 } else {
+                    Spacer(minLength: 0)
+                    
                     VStack(spacing: itemSpacing) {
                         ForEach(entry.portfolios.prefix(limit)) { item in
                             VStack(alignment: .leading, spacing: 2) {
@@ -361,6 +365,7 @@ struct PortfolioWidgetEntryView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
+                    
                     Spacer(minLength: 0)
                 }
             }
