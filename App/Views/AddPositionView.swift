@@ -27,7 +27,7 @@ public struct AddPositionView: View {
     public var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(hex: "#232835").ignoresSafeArea()
                     .onTapGesture {
                         isTickerFocused = false
                     }

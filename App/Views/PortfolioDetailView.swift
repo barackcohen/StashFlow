@@ -139,7 +139,7 @@ public struct PortfolioDetailView: View {
     
     public var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(hex: "#232835").ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 24) {
                     // Portfolio Header Card
@@ -398,7 +398,7 @@ struct EditPositionSheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(hex: "#232835").ignoresSafeArea()
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
@@ -517,7 +517,7 @@ struct PositionRow: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
-        .background(Color(hex: "#161616"))
+        .background(Color.black.opacity(0.3))
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)

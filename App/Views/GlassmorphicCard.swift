@@ -10,7 +10,7 @@ public struct GlassmorphicCard<Content: View>: View {
     public var body: some View {
         content()
             .padding()
-            .background(Color(hex: "#121212"))
+            .background(Color.black.opacity(0.3))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -29,7 +29,7 @@ extension View {
 struct GlassmorphicBackgroundModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(Color(hex: "#121212"))
+            .background(Color.black.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)

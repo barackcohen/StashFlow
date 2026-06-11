@@ -388,7 +388,7 @@ struct PortfolioWidget: Widget {
         StaticConfiguration(kind: kind, provider: PortfolioProvider()) { entry in
             PortfolioWidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
-                    Color.black
+                    Color(hex: "#232835")
                 }
         }
         .configurationDisplayName("Portfolio Tracker")
