@@ -102,19 +102,13 @@ public struct AddPositionView: View {
                                                     
                                                     if let type = result.typeDisp {
                                                         Text(type)
-                                                            .font(.caption2)
-                                                            .fontWeight(.semibold)
+                                                            .font(.system(.caption2, design: .monospaced))
+                                                            .fontWeight(.bold)
                                                             .padding(.horizontal, 8)
                                                             .padding(.vertical, 4)
-                                                            .background(
-                                                                LinearGradient(
-                                                                    colors: [Color(hex: "#00F0FF").opacity(0.15), Color(hex: "#8A2BE2").opacity(0.15)],
-                                                                    startPoint: .leading,
-                                                                    endPoint: .trailing
-                                                                )
-                                                            )
-                                                            .cornerRadius(6)
-                                                            .foregroundColor(Color(hex: "#00F0FF"))
+                                                            .background(Color.white.opacity(0.12))
+                                                            .cornerRadius(4)
+                                                            .foregroundColor(.white)
                                                     }
                                                 }
                                                 .padding(.vertical, 12)
@@ -179,13 +173,14 @@ public struct AddPositionView: View {
                                     .padding(.trailing, 8)
                             }
                             Text(isValidating ? "Validating Ticker..." : "Add Position")
-                                .font(.headline)
+                                .font(.system(.headline, design: .default))
+                                .fontWeight(.bold)
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(ticker.isEmpty || sharesText.isEmpty || isValidating ? .gray : .black)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(LinearGradient(colors: [Color(hex: "#00F0FF"), Color(hex: "#8A2BE2")], startPoint: .leading, endPoint: .trailing))
-                        .cornerRadius(16)
+                        .background(ticker.isEmpty || sharesText.isEmpty || isValidating ? Color.white.opacity(0.15) : Color.white)
+                        .cornerRadius(10)
                     }
                     .disabled(ticker.isEmpty || sharesText.isEmpty || isValidating)
                 }

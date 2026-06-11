@@ -132,14 +132,6 @@ public struct PortfolioDetailView: View {
     public var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            
-            // Subtle glow matching the portfolio color
-            Circle()
-                .fill(Color(hex: portfolio.hexColor).opacity(0.12))
-                .frame(width: 300, height: 300)
-                .blur(radius: 70)
-                .offset(x: 100, y: -150)
-            
             ScrollView {
                 VStack(spacing: 24) {
                     // Portfolio Header Card
@@ -152,23 +144,27 @@ public struct PortfolioDetailView: View {
                             
                             VStack(spacing: 4) {
                                 Text(formatCurrency(portfolioTotal, code: "USD"))
-                                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                                    .font(.system(size: 34, weight: .bold, design: .monospaced))
                                     .foregroundColor(.white)
                                 
                                 let secondaryTotal = portfolioTotal * getExchangeRate()
                                 Text(formatCurrency(secondaryTotal, code: selectedCurrency))
-                                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(.system(size: 18, weight: .semibold, design: .monospaced))
+                                    .foregroundColor(.gray)
                             }
                             
                             let change = calculator.calculateWeighted24hChange(for: portfolio, prices: priceInfoMap)
                             HStack(spacing: 4) {
                                 Image(systemName: change >= 0 ? "arrow.up" : "arrow.down")
-                                Text(String(format: "%.2f%% (24h)", change))
+                                Text(String(format: "%@%.2f%%", change >= 0 ? "+" : "", change))
                             }
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(change >= 0 ? .green : .red)
+                            .font(.system(.subheadline, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(change >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                            .cornerRadius(6)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -264,7 +260,7 @@ public struct PortfolioDetailView: View {
                                         valueUSDText: formatCurrency(totalVal, code: "USD"),
                                         valueSecondaryText: formatCurrency(secondaryVal, code: selectedCurrency),
                                         priceText: formatCurrency(price, code: "USD"),
-                                        changeText: String(format: "(%.1f%%)", change),
+                                        changeText: String(format: "%@%.2f%%", change >= 0 ? "+" : "", change),
                                         isChangePositive: change >= 0,
                                         hexColor: portfolio.hexColor,
                                         onEdit: {
@@ -468,45 +464,57 @@ struct PositionRow: View {
     let onDelete: () -> Void
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(ticker)
-                    .font(.body)
+                    .font(.system(.body, design: .default))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 Text(sharesText)
-                    .font(.caption)
+                    .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.gray)
             }
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: 2) {
                 Text(valueUSDText)
-                    .font(.body)
+                    .font(.system(.body, design: .monospaced))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text(valueSecondaryText)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
-                
-                HStack(spacing: 4) {
-                    Text(priceText)
-                    Text(changeText)
-                        .foregroundColor(isChangePositive ? .green : .red)
-                }
-                .font(.system(size: 10))
-                .foregroundColor(.gray)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.gray)
             }
+            
+            // Apple Stocks style price + change pill
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(priceText)
+                    .font(.system(.subheadline, design: .monospaced))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                if !changeText.isEmpty {
+                    Text(changeText)
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(isChangePositive ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                        .cornerRadius(4)
+                }
+            }
+            .frame(width: 82, alignment: .trailing)
         }
-        .padding()
-        .background(Color.white.opacity(0.04))
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(Color(hex: "#161616"))
+        .cornerRadius(10)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
         .contextMenu {
             Button {
                 onEdit()

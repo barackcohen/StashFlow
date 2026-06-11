@@ -76,19 +76,6 @@ public struct DashboardView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                // Neon glow background elements
-                Circle()
-                    .fill(Color(hex: "#00F0FF").opacity(0.15))
-                    .frame(width: 350, height: 350)
-                    .blur(radius: 80)
-                    .offset(x: -150, y: -200)
-                
-                Circle()
-                    .fill(Color(hex: "#8A2BE2").opacity(0.15))
-                    .frame(width: 350, height: 350)
-                    .blur(radius: 80)
-                    .offset(x: 150, y: 100)
-                
                 ScrollView {
                     VStack(spacing: 24) {
                         // Top Navigation Header
@@ -141,17 +128,17 @@ public struct DashboardView: View {
                             } label: {
                                 HStack(spacing: 4) {
                                     Text("USD / \(selectedCurrency)")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(Color(hex: "#00F0FF"))
+                                        .font(.system(.subheadline, design: .monospaced))
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
                                     Image(systemName: "chevron.down")
                                         .font(.caption2)
-                                        .foregroundColor(Color(hex: "#00F0FF"))
+                                        .foregroundColor(.white)
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.08))
-                                .clipShape(Capsule())
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(6)
                             }
                             
                             Button(action: refreshAllPrices) {
@@ -172,33 +159,33 @@ public struct DashboardView: View {
                         GlassmorphicCard {
                             VStack(spacing: 12) {
                                 Text("Total Balance")
-                                    .font(.subheadline)
+                                    .font(.system(.subheadline, design: .monospaced))
                                     .foregroundColor(.gray)
                                 
                                 VStack(spacing: 4) {
                                     Text(formatCurrency(grandTotal, code: "USD"))
-                                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                                        .font(.system(size: 38, weight: .bold, design: .monospaced))
                                         .foregroundColor(.white)
                                         .minimumScaleFactor(0.7)
                                     
                                     let secondaryTotal = grandTotal * getExchangeRate()
                                     Text(formatCurrency(secondaryTotal, code: selectedCurrency))
-                                        .font(.system(size: 20, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .font(.system(size: 18, weight: .semibold, design: .monospaced))
+                                        .foregroundColor(.gray)
                                 }
                                 
                                 let totalChange = calculateTotal24hChange()
                                 HStack(spacing: 4) {
-                                    Image(systemName: totalChange >= 0 ? "arrow.up.right" : "arrow.down.left")
-                                    Text(String(format: "%.2f%%", totalChange))
+                                    Image(systemName: totalChange >= 0 ? "arrow.up" : "arrow.down")
+                                    Text(String(format: "%@%.2f%%", totalChange >= 0 ? "+" : "", totalChange))
                                 }
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(totalChange >= 0 ? Color.green : Color.red)
+                                .font(.system(.subheadline, design: .monospaced))
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background((totalChange >= 0 ? Color.green : Color.red).opacity(0.15))
-                                .clipShape(Capsule())
+                                .background(totalChange >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                                .cornerRadius(6)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
@@ -270,9 +257,13 @@ public struct DashboardView: View {
                                         Image(systemName: "plus")
                                         Text("New")
                                     }
-                                    .font(.subheadline)
+                                    .font(.system(.subheadline, design: .monospaced))
                                     .fontWeight(.bold)
-                                    .foregroundColor(Color(hex: "#00F0FF"))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(Color.white.opacity(0.1))
+                                    .cornerRadius(6)
                                 }
                             }
                             .padding(.horizontal)
@@ -291,54 +282,56 @@ public struct DashboardView: View {
                                         let pctChange = calculator.calculateWeighted24hChange(for: portfolio, prices: priceInfoMap)
                                         
                                         NavigationLink(destination: PortfolioDetailView(portfolio: portfolio)) {
-                                            HStack {
-                                                Circle()
+                                            HStack(spacing: 12) {
+                                                RoundedRectangle(cornerRadius: 2)
                                                     .fill(Color(hex: portfolio.hexColor))
-                                                    .frame(width: 12, height: 12)
+                                                    .frame(width: 4, height: 36)
                                                 
-                                                VStack(alignment: .leading, spacing: 4) {
+                                                VStack(alignment: .leading, spacing: 2) {
                                                     Text(portfolio.name)
-                                                        .font(.body)
-                                                        .fontWeight(.bold)
+                                                        .font(.system(.body, design: .default))
+                                                        .fontWeight(.semibold)
                                                         .foregroundColor(.white)
                                                     
                                                     Text("\(portfolio.positions.count) positions")
-                                                        .font(.caption)
+                                                        .font(.system(.caption, design: .monospaced))
                                                         .foregroundColor(.gray)
                                                 }
                                                 
                                                 Spacer()
                                                 
-                                                VStack(alignment: .trailing, spacing: 4) {
+                                                VStack(alignment: .trailing, spacing: 2) {
                                                     Text(formatCurrency(total, code: "USD"))
-                                                        .font(.body)
+                                                        .font(.system(.body, design: .monospaced))
                                                         .fontWeight(.bold)
                                                         .foregroundColor(.white)
                                                     
                                                     let secondaryVal = total * getExchangeRate()
                                                     Text(formatCurrency(secondaryVal, code: selectedCurrency))
-                                                        .font(.caption)
-                                                        .foregroundColor(.white.opacity(0.6))
-                                                    
-                                                    HStack(spacing: 2) {
-                                                        Image(systemName: pctChange >= 0 ? "arrow.up" : "arrow.down")
-                                                        Text(String(format: "%.2f%%", pctChange))
-                                                    }
-                                                    .font(.system(size: 10))
-                                                    .foregroundColor(pctChange >= 0 ? .green : .red)
+                                                        .font(.system(.caption, design: .monospaced))
+                                                        .foregroundColor(.gray)
                                                 }
                                                 
+                                                Text(String(format: "%@%.2f%%", pctChange >= 0 ? "+" : "", pctChange))
+                                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                                    .foregroundColor(.white)
+                                                    .padding(.horizontal, 8)
+                                                    .padding(.vertical, 6)
+                                                    .frame(width: 82, alignment: .trailing)
+                                                    .background(pctChange >= 0 ? Color(hex: "#30D158") : Color(hex: "#FF453A"))
+                                                    .cornerRadius(4)
+                                                
                                                 Image(systemName: "chevron.right")
-                                                    .font(.caption)
+                                                    .font(.caption2)
                                                     .foregroundColor(.gray)
-                                                    .padding(.leading, 8)
                                             }
-                                            .padding()
-                                            .background(Color.white.opacity(0.04))
-                                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                                            .padding(.vertical, 10)
+                                            .padding(.horizontal, 12)
+                                            .background(Color(hex: "#161616"))
+                                            .cornerRadius(10)
                                             .overlay(
-                                                RoundedRectangle(cornerRadius: 18)
-                                                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
                                             )
                                         }
                                         .buttonStyle(PlainButtonStyle())
