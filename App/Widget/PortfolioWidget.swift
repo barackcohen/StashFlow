@@ -306,6 +306,7 @@ struct PortfolioWidgetEntryView: View {
                         .foregroundColor(.white.opacity(0.3))
                 }
             }
+            .frame(width: 86, alignment: .leading)
             
             Divider()
                 .background(Color.white.opacity(0.08))
