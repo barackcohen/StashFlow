@@ -86,9 +86,9 @@
 		3A26638E204D25A8BB2C6774 /* Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
 		3A38E75966616F0C31CAADB7 /* AppGroupSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSettings.swift; sourceTree = "<group>"; };
 		4F571D86F9993718D7D8FB97 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
-		4FFD70212CE9CC94486C7D35 /* PortfolioWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PortfolioWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FFD70212CE9CC94486C7D35 /* PortfolioWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PortfolioWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		51C046A1AFE4017AE4F1F970 /* MockStockPriceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockStockPriceService.swift; sourceTree = "<group>"; };
-		681A8674CC881B4FDA4AC9DD /* StockPortfolios.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = StockPortfolios.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		681A8674CC881B4FDA4AC9DD /* StockPortfolios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StockPortfolios.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		79718E0B9B02528700135A8A /* PortfolioDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioDetailView.swift; sourceTree = "<group>"; };
 		799D7A876A4FC7BC2EBDC101 /* RefreshIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshIntent.swift; sourceTree = "<group>"; };
 		858740DC394B6745C8EDCDB6 /* AddPositionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPositionView.swift; sourceTree = "<group>"; };
@@ -211,7 +211,6 @@
 			children = (
 				DD9829F4188ED080E2C77BA9 /* Assets.xcassets */,
 				AA9478A38E9F9A23FDAFD38C /* StockTrackerApp.swift */,
-				3A7B280852FC85E6E981B0B6 /* Shared */,
 				326517D2BBAC330447278143 /* Views */,
 			);
 			path = App;
@@ -297,8 +296,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 2B749DF4F5A23796728A7D7B /* Build configuration list for PBXProject "StockPortfolios" */;
 			developmentRegion = en;
@@ -514,6 +511,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = App/Widget/PortfolioWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -534,6 +532,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = App/Widget/PortfolioWidgetExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -580,6 +579,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/StockPortfolios.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = StashFlow;
@@ -627,6 +627,7 @@
 				CODE_SIGN_ENTITLEMENTS = App/StockPortfolios.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = StashFlow;

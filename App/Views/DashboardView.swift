@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 import StockTrackerCore
+import WidgetKit
 
 public struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
@@ -100,6 +101,7 @@ public struct DashboardView: View {
                                         if !cleanName.isEmpty {
                                             username = cleanName
                                             AppGroupSettings.shared.username = cleanName
+                                            WidgetCenter.shared.reloadAllTimelines()
                                         }
                                         isEditingName = false
                                     })
@@ -131,6 +133,7 @@ public struct DashboardView: View {
                                     Button(currency) {
                                         selectedCurrency = currency
                                         AppGroupSettings.shared.selectedSecondaryCurrency = currency
+                                        WidgetCenter.shared.reloadAllTimelines()
                                         refreshAllPrices() // Fetch conversion rate immediately
                                     }
                                 }
@@ -399,6 +402,7 @@ public struct DashboardView: View {
                         if !cleanName.isEmpty {
                             portfolio.name = cleanName
                             try? modelContext.save()
+                            WidgetCenter.shared.reloadAllTimelines()
                         }
                     }
                     portfolioToRename = nil
@@ -456,6 +460,7 @@ public struct DashboardView: View {
                     }
                 }
                 try? modelContext.save()
+                WidgetCenter.shared.reloadAllTimelines()
                 isRefreshing = false
             }
         }
@@ -467,12 +472,14 @@ public struct DashboardView: View {
         let newPortfolio = Portfolio(name: cleanName, hexColor: newPortfolioColor)
         modelContext.insert(newPortfolio)
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
         newPortfolioName = ""
     }
     
     private func deletePortfolio(_ portfolio: Portfolio) {
         modelContext.delete(portfolio)
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

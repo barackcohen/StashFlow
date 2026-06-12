@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 import StockTrackerCore
+import WidgetKit
 
 public struct PortfolioDetailView: View {
     @Environment(\.modelContext) private var modelContext
@@ -317,6 +318,7 @@ public struct PortfolioDetailView: View {
         .sheet(item: $positionToEdit) { position in
             EditPositionSheet(position: position, sharesText: $editSharesText) {
                 try? modelContext.save()
+                WidgetCenter.shared.reloadAllTimelines()
             }
         }
         .alert("Rename Portfolio", isPresented: $showingRenameAlert) {
@@ -326,6 +328,7 @@ public struct PortfolioDetailView: View {
                 if !clean.isEmpty {
                     portfolio.name = clean
                     try? modelContext.save()
+                    WidgetCenter.shared.reloadAllTimelines()
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -334,6 +337,7 @@ public struct PortfolioDetailView: View {
             Button("Delete", role: .destructive) {
                 modelContext.delete(portfolio)
                 try? modelContext.save()
+                WidgetCenter.shared.reloadAllTimelines()
                 dismiss()
             }
             Button("Cancel", role: .cancel) {}
@@ -363,6 +367,7 @@ public struct PortfolioDetailView: View {
     private func deletePosition(_ position: Position) {
         modelContext.delete(position)
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     // SwipeablePositionRow is defined below as a separate view struct.

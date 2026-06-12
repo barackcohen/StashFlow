@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import StockTrackerCore
+import WidgetKit
 
 public struct AddPositionView: View {
     let portfolio: Portfolio
@@ -277,6 +278,7 @@ public struct AddPositionView: View {
                     }
                     
                     try? modelContext.save()
+                    WidgetCenter.shared.reloadAllTimelines()
                     isValidating = false
                     isPresented = false
                 }
