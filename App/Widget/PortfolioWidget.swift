@@ -330,7 +330,7 @@ struct PortfolioWidgetEntryView: View {
                                         .frame(width: 3, height: 18)
                                     
                                     Text(item.name)
-                                        .font(.system(size: nameFontSize, weight: .bold, design: .default))
+                                        .font(.system(size: nameFontSize, weight: .bold, design: .monospaced))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
                                         .layoutPriority(1)
