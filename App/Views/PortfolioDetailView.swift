@@ -458,6 +458,8 @@ struct PositionRow: View {
                     .font(.system(.subheadline, design: .monospaced))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 
                 if !changeText.isEmpty {
                     Text(changeText)
@@ -469,7 +471,7 @@ struct PositionRow: View {
                         .cornerRadius(4)
                 }
             }
-            .frame(width: 82, alignment: .trailing)
+            .frame(width: 98, alignment: .trailing)
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
