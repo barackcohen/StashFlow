@@ -17,6 +17,7 @@ public struct PortfolioDetailView: View {
     @State private var showingRenameAlert = false
     @State private var renameText = ""
     @State private var showingDeleteAlert = false
+    @State private var showingTreemap = true
     
     private let calculator = PortfolioCalculator()
     
@@ -48,54 +49,7 @@ public struct PortfolioDetailView: View {
         }
     }
     
-    struct ChartItem: Identifiable {
-        let id: String
-        let ticker: String
-        let value: Double
-    }
-    
-    private var chartItems: [ChartItem] {
-        let rawItems = sortedPositions.map { p in
-            let price = priceMap[p.ticker] ?? 0.0
-            return ChartItem(
-                id: p.ticker,
-                ticker: p.ticker,
-                value: Double(p.shares) * price
-            )
-        }
-        
-        if rawItems.count <= 15 {
-            return rawItems
-        } else {
-            var items = Array(rawItems.prefix(14))
-            let otherValue = rawItems[14...].reduce(0.0) { $0 + $1.value }
-            items.append(ChartItem(
-                id: "Other",
-                ticker: "Other",
-                value: otherValue
-            ))
-            return items
-        }
-    }
-    
-    private let chartColors: [Color] = [
-        Color(hex: "#00F0FF"), // Neon Cyan
-        Color(hex: "#8A2BE2"), // Purple
-        Color(hex: "#FF007F"), // Neon Pink
-        Color(hex: "#00FF87"), // Neon Mint
-        Color(hex: "#FF9F0A"), // Orange
-        Color(hex: "#BF5AF2"), // Violet
-        Color(hex: "#30D158"), // Green
-        Color(hex: "#FF375F"), // Red/Rose
-        Color(hex: "#64D2FF"), // Light Blue
-        Color(hex: "#FFD60A"), // Yellow
-        Color(hex: "#FF453A"), // Coral Red
-        Color(hex: "#007AFF"), // Blue
-        Color(hex: "#AF52DE"), // Plum
-        Color(hex: "#5E5CE6"), // Indigo
-        Color(hex: "#4CD964"), // Lime Green
-        Color(hex: "#FFCC00")  // Gold
-    ]
+    // Removed old circular chart structures
     
     private var selectedCurrency: String {
         AppGroupSettings.shared.selectedSecondaryCurrency
@@ -179,51 +133,48 @@ public struct PortfolioDetailView: View {
                     }
                     .padding(.horizontal)
                     
-                    // Allocation Chart
+                    // Treemap Diagram Card
                     if portfolioTotal > 0 {
                         GlassmorphicCard {
-                            VStack(alignment: .leading, spacing: 16) {
-                                Text("Asset Allocation")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                
-                                GeometryReader { geo in
-                                    ZStack(alignment: .trailing) {
-                                        // Center chart at 40% of the card width
-                                        Chart {
-                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
-                                                let color = chartColors[index % chartColors.count]
-                                                SectorMark(
-                                                    angle: .value("Value", item.value),
-                                                    innerRadius: .ratio(0.7),
-                                                    angularInset: 1.5
-                                                )
-                                                .foregroundStyle(color)
-                                            }
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("Portfolio Treemap")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        withAnimation(.spring()) {
+                                            showingTreemap.toggle()
                                         }
-                                        .frame(width: 130, height: 130)
-                                        .position(x: geo.size.width * 0.4, y: geo.size.height / 2)
-                                        
-                                        // Legend on the right edge
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            ForEach(Array(chartItems.enumerated()), id: \.element.id) { index, item in
-                                                let color = chartColors[index % chartColors.count]
-                                                HStack(spacing: 6) {
-                                                    Circle()
-                                                        .fill(color)
-                                                        .frame(width: 6, height: 6)
-                                                        .shadow(color: color.opacity(0.5), radius: 1.5, x: 0, y: 0)
-                                                    
-                                                    Text(item.ticker)
-                                                        .font(.system(size: 11, weight: .bold))
-                                                        .foregroundColor(.white.opacity(0.9))
-                                                        .lineLimit(1)
-                                                }
-                                            }
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Text(showingTreemap ? "Hide" : "Show")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                            Image(systemName: showingTreemap ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                                                .foregroundColor(.gray)
                                         }
                                     }
                                 }
-                                .frame(height: max(CGFloat(chartItems.count * 20 + 20), 130))
+                                
+                                if showingTreemap {
+                                    let treemapItems = sortedPositions.map { p in
+                                        let price = priceMap[p.ticker] ?? 0.0
+                                        let change = priceInfoMap[p.ticker]?.change24h ?? 0.0
+                                        return TreemapItem(ticker: p.ticker, value: Double(p.shares) * price, change24h: change)
+                                    }.filter { $0.value > 0 }
+                                    
+                                    TreemapView(items: treemapItems) { ticker in
+                                        if let pos = sortedPositions.first(where: { $0.ticker == ticker }) {
+                                            editSharesText = String(pos.shares)
+                                            positionToEdit = pos
+                                        }
+                                    }
+                                    .frame(height: 200)
+                                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                }
                             }
                         }
                         .padding(.horizontal)
@@ -541,5 +492,168 @@ struct PositionRow: View {
                 Label("Delete Position", systemImage: "trash")
             }
         }
+    }
+}
+
+// MARK: - Treemap Data Types & Views
+
+struct TreemapItem {
+    let ticker: String
+    let value: Double
+    let change24h: Double
+}
+
+struct TreemapNode: Identifiable {
+    let id = UUID()
+    let ticker: String
+    let value: Double
+    let change24h: Double
+    let percentage: Double
+    let rect: CGRect
+}
+
+struct TreemapView: View {
+    let items: [TreemapItem]
+    let onSelect: (String) -> Void
+    
+    var body: some View {
+        GeometryReader { geo in
+            let nodes = layoutTreemap(items: items, rect: CGRect(origin: .zero, size: geo.size))
+            ZStack(alignment: .topLeading) {
+                ForEach(nodes) { node in
+                    Button(action: {
+                        onSelect(node.ticker)
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(getTreemapColor(change: node.change24h))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                )
+                            
+                            if node.rect.width > 45 && node.rect.height > 35 {
+                                VStack(spacing: 2) {
+                                    Text(node.ticker)
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                    
+                                    Text(String(format: "%.1f%%", node.percentage * 100))
+                                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .lineLimit(1)
+                                }
+                                .padding(4)
+                            } else if node.rect.width > 28 && node.rect.height > 18 {
+                                Text(node.ticker)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .padding(2)
+                            }
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .frame(width: max(0, node.rect.width - 2), height: max(0, node.rect.height - 2))
+                    .position(x: node.rect.midX, y: node.rect.midY)
+                }
+            }
+        }
+    }
+    
+    private func getTreemapColor(change: Double) -> Color {
+        let absChange = abs(change)
+        if change > 0 {
+            if absChange >= 3.0 {
+                return Color(hex: "#306E43") // Muted forest green
+            } else if absChange >= 1.5 {
+                return Color(hex: "#3C7C51") // Muted medium green
+            } else if absChange >= 0.5 {
+                return Color(hex: "#4E8E62") // Muted sage green
+            } else {
+                return Color(hex: "#65A37A") // Muted soft green
+            }
+        } else if change < 0 {
+            if absChange >= 3.0 {
+                return Color(hex: "#8F3B3B") // Muted dark red
+            } else if absChange >= 1.5 {
+                return Color(hex: "#A04C4C") // Muted brick red
+            } else if absChange >= 0.5 {
+                return Color(hex: "#B36060") // Muted dusty red
+            } else {
+                return Color(hex: "#C27575") // Muted soft red
+            }
+        } else {
+            return Color(hex: "#2C313E") // Flat slate
+        }
+    }
+    
+    private func layoutTreemap(items: [TreemapItem], rect: CGRect) -> [TreemapNode] {
+        guard !items.isEmpty && rect.width > 0 && rect.height > 0 else { return [] }
+        
+        let totalValue = items.reduce(0.0) { $0 + $1.value }
+        guard totalValue > 0 else { return [] }
+        
+        let sortedItems = items.sorted { $0.value > $1.value }
+        var nodes: [TreemapNode] = []
+        
+        func partition(subItems: ArraySlice<TreemapItem>, subRect: CGRect) {
+            if subItems.isEmpty { return }
+            
+            if subItems.count == 1 {
+                let item = subItems.first!
+                let pct = item.value / totalValue
+                nodes.append(TreemapNode(ticker: item.ticker, value: item.value, change24h: item.change24h, percentage: pct, rect: subRect))
+                return
+            }
+            
+            let subTotal = subItems.reduce(0.0) { $0 + $1.value }
+            var currentSum = 0.0
+            var bestIndex = subItems.startIndex
+            var minDiff = Double.infinity
+            
+            for index in subItems.indices {
+                currentSum += subItems[index].value
+                let diff = abs((subTotal / 2.0) - currentSum)
+                if diff < minDiff {
+                    minDiff = diff
+                    bestIndex = index
+                }
+            }
+            
+            let splitIndex = Swift.max(subItems.startIndex + 1, Swift.min(bestIndex + 1, subItems.endIndex - 1))
+            
+            let leftSlice = subItems[subItems.startIndex..<splitIndex]
+            let rightSlice = subItems[splitIndex..<subItems.endIndex]
+            
+            let leftSum = leftSlice.reduce(0.0) { $0 + $1.value }
+            let rightSum = rightSlice.reduce(0.0) { $0 + $1.value }
+            let sum = leftSum + rightSum
+            let leftRatio = sum > 0 ? (leftSum / sum) : 0.5
+            
+            if subRect.width > subRect.height {
+                let leftWidth = subRect.width * CGFloat(leftRatio)
+                let rightWidth = subRect.width - leftWidth
+                
+                let leftRect = CGRect(x: subRect.minX, y: subRect.minY, width: leftWidth, height: subRect.height)
+                let rightRect = CGRect(x: subRect.minX + leftWidth, y: subRect.minY, width: rightWidth, height: subRect.height)
+                
+                partition(subItems: leftSlice, subRect: leftRect)
+                partition(subItems: rightSlice, subRect: rightRect)
+            } else {
+                let topHeight = subRect.height * CGFloat(leftRatio)
+                let bottomHeight = subRect.height - topHeight
+                
+                let topRect = CGRect(x: subRect.minX, y: subRect.minY, width: subRect.width, height: topHeight)
+                let bottomRect = CGRect(x: subRect.minX, y: subRect.minY + topHeight, width: subRect.width, height: bottomHeight)
+                
+                partition(subItems: leftSlice, subRect: topRect)
+                partition(subItems: rightSlice, subRect: bottomRect)
+            }
+        }
+        
+        partition(subItems: ArraySlice(sortedItems), subRect: rect)
+        return nodes
     }
 }
