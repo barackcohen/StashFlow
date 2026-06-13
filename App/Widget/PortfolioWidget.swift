@@ -387,7 +387,6 @@ struct PortfolioWidgetEntryView: View {
     }
 }
 
-@main
 struct PortfolioWidget: Widget {
     let kind: String = "PortfolioWidget"
     
@@ -402,5 +401,13 @@ struct PortfolioWidget: Widget {
         .configurationDisplayName("Portfolio Tracker")
         .description("Track your total investments at a glance.")
         .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
+@main
+struct StashFlowWidgetsBundle: WidgetBundle {
+    var body: some Widget {
+        PortfolioWidget()
+        EntirePortfolioTreemapWidget()
     }
 }

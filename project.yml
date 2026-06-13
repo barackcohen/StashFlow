@@ -20,8 +20,10 @@ targets:
       - path: App
         excludes:
           - Widget
+          - Shared
           - Info.plist
           - StockPortfolios.entitlements
+      - path: App/Shared
     dependencies:
       - target: StockTrackerCore
       - target: PortfolioWidgetExtension
@@ -35,6 +37,7 @@ targets:
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       INFOPLIST_KEY_CFBundleDisplayName: StashFlow
       INFOPLIST_KEY_CFBundleName: StashFlow
+      DEVELOPMENT_TEAM: R5C39F58KR
 
   PortfolioWidgetExtension:
     type: app-extension
@@ -54,3 +57,10 @@ targets:
       MARKETING_VERSION: "1.0.0"
       CURRENT_PROJECT_VERSION: "1"
       CODE_SIGN_ENTITLEMENTS: App/Widget/PortfolioWidgetExtension.entitlements
+      DEVELOPMENT_TEAM: R5C39F58KR
+
+schemes:
+  StockPortfolios:
+    build:
+      targets:
+        StockPortfolios: all
