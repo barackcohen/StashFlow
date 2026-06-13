@@ -152,7 +152,7 @@ struct EntirePortfolioTreemapWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Total Assets")
@@ -182,7 +182,7 @@ struct EntirePortfolioTreemapWidgetEntryView: View {
                         .fill(entry.dayChangePercent >= 0 ? Color(hex: "#306E43") : Color(hex: "#8F3B3B"))
                 )
             }
-            .padding(.horizontal, 2)
+            .padding(.horizontal, 4)
             
             if entry.items.isEmpty {
                 VStack {
@@ -196,7 +196,7 @@ struct EntirePortfolioTreemapWidgetEntryView: View {
                 TreemapWidgetView(items: entry.items)
             }
         }
-        .padding(10)
+        .padding(14)
     }
     
     private func formatCurrency(_ value: Double, code: String) -> String {
@@ -246,7 +246,7 @@ struct TreemapWidgetView: View {
                             }
                         }
                     }
-                    .frame(width: max(0, node.rect.width - 1.5), height: max(0, node.rect.height - 1.5))
+                    .frame(width: max(0, node.rect.width - 3.0), height: max(0, node.rect.height - 3.0))
                     .position(x: node.rect.midX, y: node.rect.midY)
                 }
             }
