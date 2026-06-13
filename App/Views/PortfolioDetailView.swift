@@ -17,7 +17,7 @@ public struct PortfolioDetailView: View {
     @State private var showingRenameAlert = false
     @State private var renameText = ""
     @State private var showingDeleteAlert = false
-    @State private var showingTreemap = true
+    @State private var showingTreemap: Bool
     
     private let calculator = PortfolioCalculator()
     
@@ -90,6 +90,9 @@ public struct PortfolioDetailView: View {
     
     public init(portfolio: Portfolio) {
         self.portfolio = portfolio
+        let foldedKey = "portfolio_treemap_folded_\(portfolio.id.uuidString)"
+        let isFolded = UserDefaults.standard.bool(forKey: foldedKey)
+        self._showingTreemap = State(initialValue: !isFolded)
     }
     
     public var body: some View {
@@ -147,6 +150,8 @@ public struct PortfolioDetailView: View {
                                     Button(action: {
                                         withAnimation(.spring()) {
                                             showingTreemap.toggle()
+                                            let foldedKey = "portfolio_treemap_folded_\(portfolio.id.uuidString)"
+                                            UserDefaults.standard.set(!showingTreemap, forKey: foldedKey)
                                         }
                                     }) {
                                         HStack(spacing: 4) {
