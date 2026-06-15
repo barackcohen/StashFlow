@@ -222,8 +222,8 @@ public struct PortfolioDetailView: View {
                                     PositionRow(
                                         ticker: position.ticker,
                                         sharesText: "\(formatShares(position.shares, ticker: position.ticker)) shares",
-                                        valueUSDText: formatCurrency(totalVal, code: "USD"),
-                                        valueSecondaryText: formatCurrency(secondaryVal, code: selectedCurrency),
+                                        valueUSDText: formatCurrencyNoCents(totalVal, code: "USD"),
+                                        valueSecondaryText: formatCurrencyNoCents(secondaryVal, code: selectedCurrency),
                                         priceText: formatCurrency(price, code: "USD"),
                                         changeText: String(format: "%@%.2f%%", change >= 0 ? "+" : "", change),
                                         isChangePositive: change >= 0,
