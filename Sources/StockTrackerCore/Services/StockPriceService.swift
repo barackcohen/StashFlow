@@ -67,7 +67,17 @@ public final class StockPriceService: StockPriceServiceProtocol, @unchecked Send
             }
         }
         
-        let prevClose = resultItem.meta.chartPreviousClose ?? price
+        var prevClose = resultItem.meta.chartPreviousClose ?? price
+        
+        // If the latest data point falls within the pre-market trading period,
+        // we use yesterday's regular session close (previousClose or regularMarketPrice)
+        // to show the pre-market change alone, rather than combining it with yesterday's change.
+        if let lastTimestamp = resultItem.timestamp?.last,
+           let periods = resultItem.meta.currentTradingPeriod,
+           lastTimestamp >= periods.pre.start && lastTimestamp <= periods.pre.end {
+            prevClose = resultItem.meta.previousClose ?? resultItem.meta.regularMarketPrice
+        }
+        
         let change24h = prevClose != 0 ? ((price - prevClose) / prevClose) * 100.0 : 0.0
         
         return (price, change24h)
@@ -150,6 +160,17 @@ private struct YahooSearchResponse: Codable {
 
 // MARK: - Yahoo Finance JSON Mapping Structs
 
+private struct TradingPeriod: Codable {
+    let start: Int
+    let end: Int
+}
+
+private struct CurrentTradingPeriod: Codable {
+    let pre: TradingPeriod
+    let regular: TradingPeriod
+    let post: TradingPeriod
+}
+
 private struct YahooFinanceResult: Codable {
     struct Chart: Codable {
         struct ResultItem: Codable {
@@ -157,6 +178,8 @@ private struct YahooFinanceResult: Codable {
                 let symbol: String
                 let regularMarketPrice: Double
                 let chartPreviousClose: Double?
+                let previousClose: Double?
+                let currentTradingPeriod: CurrentTradingPeriod?
             }
             struct Indicators: Codable {
                 struct Quote: Codable {
@@ -166,6 +189,7 @@ private struct YahooFinanceResult: Codable {
             }
             let meta: Meta
             let indicators: Indicators?
+            let timestamp: [Int]?
         }
         struct ErrorItem: Codable {
             let code: String
