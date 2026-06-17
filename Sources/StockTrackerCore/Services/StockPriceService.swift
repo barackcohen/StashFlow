@@ -75,7 +75,7 @@ public final class StockPriceService: StockPriceServiceProtocol, @unchecked Send
         if let lastTimestamp = resultItem.timestamp?.last,
            let periods = resultItem.meta.currentTradingPeriod,
            lastTimestamp >= periods.pre.start && lastTimestamp <= periods.pre.end {
-            prevClose = resultItem.meta.previousClose ?? resultItem.meta.regularMarketPrice
+            prevClose = resultItem.meta.regularMarketPrice != 0 ? resultItem.meta.regularMarketPrice : prevClose
         }
         
         let change24h = prevClose != 0 ? ((price - prevClose) / prevClose) * 100.0 : 0.0
