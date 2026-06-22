@@ -302,9 +302,11 @@
 				TargetAttributes = {
 					5C970944E27FC3E0E2625F51 = {
 						DevelopmentTeam = R5C39F58KR;
+						ProvisioningStyle = Automatic;
 					};
 					5FEFA854D6AC23B6A0BE7461 = {
 						DevelopmentTeam = R5C39F58KR;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -522,6 +524,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = App/Widget/PortfolioWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -543,6 +546,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = App/Widget/PortfolioWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -590,6 +594,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/StockPortfolios.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -638,6 +643,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/StockPortfolios.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = R5C39F58KR;
 				GENERATE_INFOPLIST_FILE = YES;

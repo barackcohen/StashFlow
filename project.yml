@@ -38,6 +38,7 @@ targets:
       INFOPLIST_KEY_CFBundleDisplayName: StashFlow
       INFOPLIST_KEY_CFBundleName: StashFlow
       DEVELOPMENT_TEAM: R5C39F58KR
+      CODE_SIGN_STYLE: Automatic
 
   PortfolioWidgetExtension:
     type: app-extension
@@ -58,6 +59,7 @@ targets:
       CURRENT_PROJECT_VERSION: "1"
       CODE_SIGN_ENTITLEMENTS: App/Widget/PortfolioWidgetExtension.entitlements
       DEVELOPMENT_TEAM: R5C39F58KR
+      CODE_SIGN_STYLE: Automatic
 
 schemes:
   StockPortfolios:
